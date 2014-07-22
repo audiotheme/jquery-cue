@@ -1,0 +1,91 @@
+.mejs-container {
+	padding-bottom: 30px;
+}
+
+
+.mejs-layers {
+	display: table;
+	height: 80px;
+	width: 100%;
+}
+
+.mejs-layers .mejs-track-artwork {
+	display: table-cell;
+	width: 100px;
+}
+
+.mejs-layers .mejs-track-artwork img {
+	display: block;
+	height: 80px;
+	width: 80px;
+}
+
+.mejs-layers .mejs-track-details {
+	color: #fff;
+	display: table-cell;
+	vertical-align: middle;
+}
+
+.mejs-layers .mejs-track-details .mejs-track-artist {
+	display: block;
+	font-size: 12px;
+}
+
+.mejs-layers .mejs-track-details .mejs-track-title {
+	display: block;
+	font-size: 14px;
+	font-weight: bold;
+}
+
+
+.mejs-controls .mejs-button button {
+	background-image: none;
+}
+
+.mejs-controls .mejs-button button:before {
+	color: #fff;
+	display: block;
+	font-family: "Genericons";
+	font-size: 16px;
+	font-style: normal;
+	font-variant: normal;
+	font-weight: normal;
+	line-height: 1;
+	position: absolute;
+	top: 0;
+	left: 0;
+	speak: none;
+	text-align: center;
+	text-decoration: inherit;
+	text-transform: none;
+	-moz-transition: color .1s ease-in 0;
+	-webkit-transition: color .1s ease-in 0;
+	vertical-align: top;
+	-moz-osx-font-smoothing: grayscale;
+	-webkit-font-smoothing: antialiased;
+}
+
+.mejs-controls .mejs-next-button button:before {
+	content: "\f451";
+}
+
+.mejs-controls .mejs-playpause-button.mejs-play button:before {
+	content: "\f452";
+}
+
+.mejs-controls .mejs-playpause-button.mejs-pause button:before {
+	content: "\f448";
+}
+
+.mejs-controls .mejs-previous-button button:before {
+	content: "\f450";
+}
+
+.mejs-controls .mejs-toggle-playlist-button {
+	position: absolute;
+	right: 0;
+}
+
+.mejs-controls .mejs-toggle-playlist-button button:before {
+	content: "\f419";
+}

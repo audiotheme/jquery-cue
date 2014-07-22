@@ -1,0 +1,25 @@
+{
+	"boss": true,
+	"browser": true,
+	"curly": true,
+	"devel": true,
+	"eqeqeq": true,
+	"eqnull": true,
+	"expr": true,
+	"immed": true,
+	"jquery": true,
+	"latedef": true,
+	"newcap": true,
+	"noarg": true,
+	"node": true,
+	"quotmark": "single",
+	"smarttabs": true,
+	"sub": true,
+	"trailing": true,
+	"undef": true,
+	"globals": {
+		"atmep": false,
+		"MediaElementPlayer": false,
+		"mejs": false
+	}
+}
