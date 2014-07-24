@@ -52,6 +52,10 @@ window.cue = window.cue || {};
 				$data = $playlist.find( '.cue-playlist-data, script' ),
 				data, i, trackCount;
 
+			if ( ! $data.length ) {
+				$data = $playlist.closest( '.cue-playlist-container' ).find( '.cue-playlist-data, script' );
+			}
+
 			if ( $data.length ) {
 				data = $.parseJSON( $data.first().html() );
 
