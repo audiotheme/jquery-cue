@@ -17,6 +17,11 @@ window.cue = window.cue || {};
 	// Add mime-type aliases to MediaElement plugin support.
 	mejs.plugins.silverlight[ 0 ].types.push( 'audio/x-ms-wma' );
 
+	// Detection for browser SVG capability.
+	$( 'html' ).addClass(function() {
+		return document.implementation.hasFeature( 'http://www.w3.org/TR/SVG11/feature#Image', '1.1' ) ? 'svg' : 'no-svg';
+	});
+
 	$.extend( mejs.MepDefaults, {
 		cueResponsiveProgress: false, // Set the progress bar to 100% on window resize.
 		cueSkin: ''
