@@ -5,17 +5,18 @@
 
 	$.extend( mejs.MepDefaults, {
 		cuePlaylistLoop: true,
-		cuePlaylistTracks: [],
-		cueSelectors: {
-			playlist: '.cue-playlist',
-			track: '.cue-track',
-			trackCurrentTime: '.cue-track-current-time',
-			trackDuration: '.cue-track-duration',
-			trackPlayBar: '.cue-track-play-bar',
-			trackProgressBar: '.cue-track-progress-bar',
-			trackSeekBar: '.cue-track-seek-bar',
-			tracklist: '.cue-tracklist'
-		}
+		cuePlaylistTracks: []
+	});
+
+	$.extend( mejs.MepDefaults.cueSelectors, {
+		playlist: '.cue-playlist',
+		track: '.cue-track',
+		trackCurrentTime: '.cue-track-current-time',
+		trackDuration: '.cue-track-duration',
+		trackPlayBar: '.cue-track-play-bar',
+		trackProgressBar: '.cue-track-progress-bar',
+		trackSeekBar: '.cue-track-seek-bar',
+		tracklist: '.cue-tracklist'
 	});
 
 	$.extend( MediaElementPlayer.prototype, {

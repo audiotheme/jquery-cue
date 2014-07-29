@@ -24,6 +24,9 @@ window.cue = window.cue || {};
 
 	$.extend( mejs.MepDefaults, {
 		cueResponsiveProgress: false, // Set the progress bar to 100% on window resize.
+		cueSelectors: {
+			container: '.cue-playlist-container'
+		},
 		cueSkin: ''
 	});
 
@@ -58,7 +61,7 @@ window.cue = window.cue || {};
 				data, i, trackCount;
 
 			if ( ! $data.length ) {
-				$data = $playlist.closest( '.cue-playlist-container' ).find( '.cue-playlist-data, script' );
+				$data = $playlist.closest( settings.cueSelectors.container ).find( '.cue-playlist-data, script' );
 			}
 
 			if ( $data.length ) {
