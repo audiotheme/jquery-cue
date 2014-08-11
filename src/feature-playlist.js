@@ -100,8 +100,7 @@
 
 		cueSetCurrentTrack: function( track, play ) {
 			var player = this,
-				selectors = player.options.cueSelectors,
-				$artwork = player.layers.find( '.mejs-track-artwork' );
+				selectors = player.options.cueSelectors;
 
 			if ( 'number' === typeof track ) {
 				player.cueCurrentTrack = track;
