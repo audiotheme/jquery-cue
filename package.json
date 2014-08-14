@@ -1,7 +1,7 @@
 {
   "name": "jquery-cue",
+  "version": "1.0.1",
   "description": "Playlist functionality for MediaElement.js",
-  "version": "1.0.0",
   "homepage": "http://audiotheme.com/",
   "repository": {
     "type": "git",

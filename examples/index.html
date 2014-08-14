@@ -12,7 +12,6 @@
 
 
 <div class="playlist">
-
 	<ol class="tracks">
 		<li class="track">Cows Around</li>
 		<li class="track">I Wanna Be In the Cavalry</li>
@@ -33,6 +32,7 @@
 jQuery( document).ready(function( $ ) {
 
 	$( '.playlist' ).cuePlaylist({
+		audioHeight: 80,
 		cuePlaylistTracks: [
 			{
 				meta: { artist: 'Corb Lund' },
@@ -59,7 +59,6 @@ jQuery( document).ready(function( $ ) {
 			track: '.track',
 			tracklist: '.tracks'
 		},
-		audioHeight: 80,
 		features: [
 			'cueartwork',
 			'cuecurrentdetails',
@@ -70,10 +69,11 @@ jQuery( document).ready(function( $ ) {
 			'current',
 			'duration',
 			'cueplaylist',
-			'cueplaylisttoggle'
+			'cueplaylisttoggle',
+			'cueicons'
 		],
-		pluginPath: '//cdn.jsdelivr.net/mediaelement/2.14.2/',
-		flashName: 'flashmediaelement-cdn.swf'
+		flashName: 'flashmediaelement-cdn.swf',
+		pluginPath: '//cdn.jsdelivr.net/mediaelement/2.14.2/'
 	});
 
 });

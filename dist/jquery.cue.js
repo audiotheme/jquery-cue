@@ -1,10 +1,10 @@
 /*!
- * jquery.cue.js - 1.0.0
+ * jquery.cue.js - 1.0.1
  * Playlist and other functionality for MediaElement.js
  * http://audiotheme.com/
  *
  * Copyright 2014, AudioTheme LLC
- * License: GPL-2.0+
+ * License: MIT
  */
 window.cue = window.cue || {};
 
@@ -25,8 +25,16 @@ window.cue = window.cue || {};
 	// Add mime-type aliases to MediaElement plugin support.
 	mejs.plugins.silverlight[ 0 ].types.push( 'audio/x-ms-wma' );
 
+	// Detection for browser SVG capability.
+	$( 'html' ).addClass(function() {
+		return document.implementation.hasFeature( 'http://www.w3.org/TR/SVG11/feature#Image', '1.1' ) ? 'svg' : 'no-svg';
+	});
+
 	$.extend( mejs.MepDefaults, {
 		cueResponsiveProgress: false, // Set the progress bar to 100% on window resize.
+		cueSelectors: {
+			container: '.cue-playlist-container'
+		},
 		cueSkin: ''
 	});
 
@@ -59,6 +67,10 @@ window.cue = window.cue || {};
 				$media = $playlist.find( '.cue-audio, audio' ).first(),
 				$data = $playlist.find( '.cue-playlist-data, script' ),
 				data, i, trackCount;
+
+			if ( ! $data.length ) {
+				$data = $playlist.closest( settings.cueSelectors.container ).find( '.cue-playlist-data, script' );
+			}
 
 			if ( $data.length ) {
 				data = $.parseJSON( $data.first().html() );
@@ -149,10 +161,14 @@ window.cue = window.cue || {};
 			var $artwork = layers.append( '<span class="mejs-track-artwork"><img src=""></span>' ).find( '.mejs-track-artwork' );
 
 			player.$node.on( 'setTrack.cue', function( e, track, player ) {
+				var hasArtwork;
+
 				track.thumb = track.thumb || {};
+				hasArtwork = 'undefined' !== typeof track.thumb.src && '' !== track.thumb.src;
 
 				// Set the artwork src and toggle depending on if the URL is empty.
-				$artwork.find( 'img' ).attr( 'src', track.thumb.src ).toggle( 'undefined' !== typeof track.thumb.src && '' !== track.thumb.src );
+				$artwork.find( 'img' ).attr( 'src', track.thumb.src ).toggle( hasArtwork );
+				$artwork.closest( player.options.cueSelectors.playlist ).toggleClass( 'has-artwork', hasArtwork );
 			});
 		}
 
@@ -184,6 +200,23 @@ window.cue = window.cue || {};
 	});
 
 })( this, jQuery );
+
+(function( window, $, cue, undefined ) {
+	'use strict';
+
+	// Add this feature after all controls have been built.
+	$.extend( MediaElementPlayer.prototype, {
+		buildcueicons: function( player, controls ) {
+			var $icons = $( player.options.cueSelectors.container ).find( '[data-cue-control]' );
+
+			$icons.each(function() {
+				var $icon = $( this );
+				$icon.appendTo( controls.find( $icon.data( 'cueControl' ) ) );
+			});
+		}
+	});
+
+})( this, jQuery, window.cue );
 
 (function( window, $, cue, undefined ) {
 	'use strict';
@@ -223,17 +256,18 @@ window.cue = window.cue || {};
 
 	$.extend( mejs.MepDefaults, {
 		cuePlaylistLoop: true,
-		cuePlaylistTracks: [],
-		cueSelectors: {
-			playlist: '.cue-playlist',
-			track: '.cue-track',
-			trackCurrentTime: '.cue-track-current-time',
-			trackDuration: '.cue-track-duration',
-			trackPlayBar: '.cue-track-play-bar',
-			trackProgressBar: '.cue-track-progress-bar',
-			trackSeekBar: '.cue-track-seek-bar',
-			tracklist: '.cue-tracklist'
-		}
+		cuePlaylistTracks: []
+	});
+
+	$.extend( mejs.MepDefaults.cueSelectors, {
+		playlist: '.cue-playlist',
+		track: '.cue-track',
+		trackCurrentTime: '.cue-track-current-time',
+		trackDuration: '.cue-track-duration',
+		trackPlayBar: '.cue-track-play-bar',
+		trackProgressBar: '.cue-track-progress-bar',
+		trackSeekBar: '.cue-track-seek-bar',
+		tracklist: '.cue-tracklist'
 	});
 
 	$.extend( MediaElementPlayer.prototype, {
@@ -317,8 +351,7 @@ window.cue = window.cue || {};
 
 		cueSetCurrentTrack: function( track, play ) {
 			var player = this,
-				selectors = player.options.cueSelectors,
-				$artwork = player.layers.find( '.mejs-track-artwork' );
+				selectors = player.options.cueSelectors;
 
 			if ( 'number' === typeof track ) {
 				player.cueCurrentTrack = track;
@@ -403,16 +436,40 @@ window.cue = window.cue || {};
 (function( window, $, cue, undefined ) {
 	'use strict';
 
+	$.extend( mejs.MepDefaults, {
+		cuePlaylistToggle: function( $tracklist, player ) {
+			$tracklist.slideToggle( 200 );
+		}
+	});
+
 	$.extend( MediaElementPlayer.prototype, {
 		buildcueplaylisttoggle: function( player, controls, layers, media ) {
-			var selectors = player.options.cueSelectors;
+			var selectors = player.options.cueSelectors,
+				$playlist = player.container.closest( selectors.playlist ),
+				$tracklist = $playlist.find( selectors.tracklist ),
+				isTracklistVisible = $tracklist.is( ':visible' );
+
+			$playlist.addClass(function() {
+				return isTracklistVisible ? 'is-tracklist-open' : 'is-tracklist-closed';
+			});
 
 			$( '<div class="mejs-button mejs-toggle-playlist-button mejs-toggle-playlist">' +
 				'<button type="button" aria-controls="' + player.id + '" title="' + cue.l10n.togglePlaylist + '"></button>' +
 				'</div>' )
 			.appendTo( player.controls )
 			.on( 'click', function() {
-				$( this ).closest( selectors.playlist ).find( selectors.tracklist ).slideToggle( 200 );
+				var $button = $( this ),
+					isTracklistVisible = $tracklist.is( ':visible' );
+
+				$button.toggleClass( 'is-open', ! isTracklistVisible ).toggleClass( 'is-closed', isTracklistVisible );
+				$playlist.toggleClass( 'is-tracklist-open', ! isTracklistVisible ).toggleClass( 'is-tracklist-closed', isTracklistVisible );
+
+				if ( $.isFunction( player.options.cuePlaylistToggle ) ) {
+					player.options.cuePlaylistToggle( $tracklist, player );
+				}
+			})
+			.addClass(function() {
+				return isTracklistVisible ? 'is-open' : 'is-closed';
 			});
 		}
 	});
