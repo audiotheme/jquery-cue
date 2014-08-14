@@ -4,5 +4,5 @@
  * http://audiotheme.com/
  *
  * Copyright 2014, AudioTheme LLC
- * License: GPL-2.0+
+ * License: MIT
  */
