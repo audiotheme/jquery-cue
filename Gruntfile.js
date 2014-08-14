@@ -23,6 +23,7 @@ module.exports = function( grunt ) {
 							'src/cue.js',
 							'src/feature-artwork.js',
 							'src/feature-current-details.js',
+							'src/feature-icons.js',
 							'src/feature-next-track.js',
 							'src/feature-playlist.js',
 							'src/feature-playlist-toggle.js',
@@ -57,7 +58,7 @@ module.exports = function( grunt ) {
 		watch: {
 			js: {
 				files: ['<%= jshint.all %>'],
-				tasks: ['jshint', 'build']
+				tasks: ['default']
 			},
 		}
 
