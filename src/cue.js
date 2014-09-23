@@ -67,6 +67,11 @@ window.cue = window.cue || {};
 			if ( $data.length ) {
 				data = $.parseJSON( $data.first().html() );
 
+				// Add the signature.
+				if ( 'cueSignature' in data ) {
+					settings.cueSignature = data.cueSignature;
+				}
+
 				// Add the tracks.
 				if ( ( 'undefined' === typeof options || 'undefined' === typeof options.cuePlaylistTracks ) && 'tracks' in data ) {
 					settings.cuePlaylistTracks = data.tracks;
