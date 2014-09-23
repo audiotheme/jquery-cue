@@ -23,6 +23,7 @@ module.exports = function( grunt ) {
 							'src/cue.js',
 							'src/feature-artwork.js',
 							'src/feature-current-details.js',
+							'src/feature-history.js',
 							'src/feature-icons.js',
 							'src/feature-next-track.js',
 							'src/feature-playlist.js',
