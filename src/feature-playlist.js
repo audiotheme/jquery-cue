@@ -123,7 +123,7 @@
 
 			player.$node.trigger( 'setTrack.cue', [ track, player ]);
 
-			if ( track.src && ( play || 'undefined' === typeof play ) ) {
+			if ( track.src && ( 'undefined' === typeof play || play ) ) {
 				// Browsers don't seem to play without the timeout.
 				setTimeout( function() {
 					player.play();
