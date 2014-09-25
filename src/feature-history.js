@@ -12,7 +12,7 @@
 		cueHistory: null,
 
 		buildcuehistory: function( player, controls, layers, media ) {
-			var loaded = false,
+			var isLoaded = false,
 				$container = player.container.closest( player.options.cueSelectors.playlist ),
 				currentTime, history;
 
@@ -32,23 +32,17 @@
 				history.set( 'currentTime', media.currentTime );
 			});
 
-			// Only set the current time on initial load.
-			// @todo See mep-feature-sourcechooser.js
-			media.addEventListener( 'loadedmetadata', function() {
-				if ( ! loaded && currentTime ) {
-					player.setCurrentTime( currentTime );
-					player.setCurrentRail();
-				}
-				loaded = true;
-			});
-
 			// @todo Account for autoplay.
 			$container.on( 'success.cue', function( e, media, domObject, player ) {
 				var status;
 
 				if ( history && undefined !== history.get( 'trackIndex' ) ) {
 					status = history ? history.get( 'status' ) : '';
-					player.cueSetCurrentTrack( history.get( 'trackIndex' ), ( 'playing' === status ) );
+					player.cueSetCurrentTrack(
+						history.get( 'trackIndex' ),
+						( 'playing' === status ),
+						currentTime || 0
+					);
 				}
 			});
 		},

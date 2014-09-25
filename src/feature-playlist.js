@@ -98,9 +98,10 @@
 			});
 		},
 
-		cueSetCurrentTrack: function( track, play ) {
+		cueSetCurrentTrack: function( track, play, currentTime ) {
 			var player = this,
-				selectors = player.options.cueSelectors;
+				selectors = player.options.cueSelectors,
+				isLoaded = false;
 
 			if ( 'number' === typeof track ) {
 				player.cueCurrentTrack = track;
@@ -123,12 +124,13 @@
 
 			player.$node.trigger( 'setTrack.cue', [ track, player ]);
 
-			if ( track.src && ( 'undefined' === typeof play || play ) ) {
-				// Browsers don't seem to play without the timeout.
-				setTimeout( function() {
+			player.media.addEventListener( 'loadedmetadata', function() {
+				if ( track.src && ! isLoaded && ( 'undefined' === typeof play || play ) ) {
+					player.media.setCurrentTime( currentTime || 0 );
 					player.play();
-				}, 100 );
-			}
+				}
+				isLoaded = player.isLoaded;
+			});
 		}
 	});
 
