@@ -17,11 +17,6 @@
 			var player = this,
 				index = player.cueCurrentTrack + 1 >= player.options.cuePlaylistTracks.length ? 0 : player.cueCurrentTrack + 1;
 
-			// Determine if the playlist shouldn't loop.
-			if ( ! player.options.cuePlaylistLoop && 0 === index ) {
-				return;
-			}
-
 			player.$node.trigger( 'nextTrack.cue', player );
 			player.cueSetCurrentTrack( index );
 		}
