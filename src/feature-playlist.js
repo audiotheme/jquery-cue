@@ -1,7 +1,7 @@
 (function( window, $, undefined ) {
 	'use strict';
 
-	var current;
+	var current, playTimeoutId;
 
 	$.extend( mejs.MepDefaults, {
 		cuePlaylistLoop: true,
@@ -98,10 +98,34 @@
 			});
 		},
 
-		cueSetCurrentTrack: function( track, play, currentTime ) {
+		/**
+		 * Play the current track.
+		 *
+		 * Some browsers and plugins don't like it when play() is called
+		 * immediately after a file has been loaded (history autoplayback,
+		 * ended event, etc).
+		 *
+		 * Cycling through tracks quickly can also cause multiple sources to
+		 * begin playing without a way to control them, so clearing the timeout
+		 * helps prevent that.
+		 */
+		cuePlay: function() {
+			var player = this;
+
+			if ( ! player.media.paused && 'flash' !== player.media.pluginType ) {
+				return;
+			}
+
+			clearTimeout( playTimeoutId );
+
+			playTimeoutId = setTimeout(function() {
+				player.play();
+			}, 50 );
+		},
+
+		cueSetCurrentTrack: function( track, play ) {
 			var player = this,
-				selectors = player.options.cueSelectors,
-				isLoaded = false;
+				selectors = player.options.cueSelectors;
 
 			if ( 'number' === typeof track ) {
 				player.cueCurrentTrack = track;
@@ -116,21 +140,17 @@
 				player.controls.find( '.mejs-duration' ).text( track.length );
 			}
 
-			player.pause();
-			if ( track.src ) {
+			if ( track.src && track.src !== player.media.src ) {
+				player.pause();
 				player.setSrc( track.src );
 				player.load();
 			}
 
 			player.$node.trigger( 'setTrack.cue', [ track, player ]);
 
-			player.media.addEventListener( 'loadedmetadata', function() {
-				if ( track.src && ! isLoaded && ( 'undefined' === typeof play || play ) ) {
-					player.media.setCurrentTime( currentTime || 0 );
-					player.play();
-				}
-				isLoaded = player.isLoaded;
-			});
+			if ( track.src && ( 'undefined' === typeof play || play ) ) {
+				player.cuePlay();
+			}
 		}
 	});
 
