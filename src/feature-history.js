@@ -1,7 +1,46 @@
 (function( window, $, undefined ) {
 	'use strict';
 
-	var cueSuccess  = $.fn.cuePlaylist.defaults;
+	var historySuccess, originalSuccess,
+		mePlayerInit = mejs.MediaElementPlayer.prototype.init;
+
+	/**
+	 * Proxy the MediaElementPlayer init method to proxy the success callback.
+	 */
+	mejs.MediaElementPlayer.prototype.init = function() {
+		// Set up if the cuehistory feature is declared.
+		if ( -1 !== $.inArray( 'cuehistory', this.options.features ) ) {
+			originalSuccess = this.options.success;
+			this.options.success = historySuccess;
+		}
+		mePlayerInit.call( this );
+	};
+
+	/**
+	 * Proxied MediaElementPlayer success callback.
+	 */
+	historySuccess = function( media, domObject, player ) {
+		var isPlaying, status,
+			history = new History( player.options.cueId || '', player.options.cueSignature || '' ),
+			autoplay = ( 'autoplay' === media.getAttribute( 'autoplay' ) ),
+			mf = mejs.MediaFeatures;
+
+		if ( ! history || undefined === history.get( 'trackIndex' ) ) {
+			return;
+		}
+
+		// Don't start playing if on a mobile device or if autoplay is active.
+		status = history ? history.get( 'status' ) : '';
+		isPlaying = ( 'playing' === status && ! mf.isiOS && ! mf.isAndroid && ! autoplay );
+
+		if ( 'cuePlaylistTracks' in player.options && player.options.cuePlaylistTracks.length ) {
+			player.cueSetCurrentTrack( history.get( 'trackIndex' ), isPlaying );
+		} else if ( isPlaying ) {
+			player.cuePlay();
+		}
+
+		originalSuccess.call( this, media, domObject, player );
+	};
 
 	$.extend( mejs.MepDefaults, {
 		cueId: 'cue',
@@ -12,9 +51,10 @@
 		cueHistory: null,
 
 		buildcuehistory: function( player, controls, layers, media ) {
-			var isLoaded = false,
+			var currentTime, history,
 				$container = player.container.closest( player.options.cueSelectors.playlist ),
-				currentTime, history;
+				isLoaded = false,
+				mf = mejs.MediaFeatures;
 
 			history = player.cueHistory = new History( player.options.cueId, player.options.cueSignature );
 			currentTime = history.get( 'currentTime' );
@@ -32,20 +72,36 @@
 				history.set( 'currentTime', media.currentTime );
 			});
 
-			// @todo Account for autoplay.
-			$container.on( 'success.cue', function( e, media, domObject, player ) {
-				var status;
-
-				if ( history && undefined !== history.get( 'trackIndex' ) ) {
-					status = history ? history.get( 'status' ) : '';
-					player.cueSetCurrentTrack(
-						history.get( 'trackIndex' ),
-						( 'playing' === status ),
-						currentTime || 0
-					);
+			// Only set the current time on initial load.
+			media.addEventListener( 'playing', function() {
+				if ( isLoaded || currentTime < 1 ) {
+					return;
 				}
+
+				if ( mf.isiOS ) {
+					// Tested on iOS 7 on an iPad, may need to update for other devices.
+
+					// The currentTime can't be set in iOS until the desired time
+					// has been buffered. Poll the buffered end time until it's
+					// possible to set currentTime. The audio may begin playing from
+					// the beginning before skipping ahead.
+					var intervalId = setInterval(function() {
+						if ( currentTime < media.buffered.end( 0 ) ) {
+							clearInterval( intervalId );
+							player.setCurrentTime( currentTime );
+							player.setCurrentRail();
+						}
+					}, 50 );
+				} else {
+					try {
+						player.setCurrentTime( currentTime );
+						player.setCurrentRail();
+					} catch ( exp ) { }
+				}
+
+				isLoaded = true;
 			});
-		},
+		}
 
 	});
 
