@@ -5,7 +5,7 @@
 <title>jquery.cue.js Demo</title>
 <link rel="stylesheet" href="assets/css/base.css">
 <link rel="stylesheet" href="assets/fonts/genericons.css">
-<link rel="stylesheet" href="//cdn.jsdelivr.net/mediaelement/2.14.2/mediaelementplayer.min.css">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/mediaelement/2.15/mediaelementplayer.min.css">
 <link rel="stylesheet" href="assets/css/mediaelement.css">
 </head>
 <body>
@@ -25,14 +25,15 @@
 
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-<script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.1.min.js"><\/script>')</script>
-<script src="//cdn.jsdelivr.net/mediaelement/2.14.2/mediaelement-and-player.min.js"></script>
+<script src="//cdn.jsdelivr.net/mediaelement/2.15/mediaelement-and-player.min.js"></script>
+<!--<script src="assets/js/mediaelement-and-player.js"></script>-->
 <script src="../dist/jquery.cue.js"></script>
 <script>
 jQuery( document).ready(function( $ ) {
 
 	$( '.playlist' ).cuePlaylist({
 		audioHeight: 80,
+		cuePlaylistLoop: false,
 		cuePlaylistTracks: [
 			{
 				meta: { artist: 'Corb Lund' },
@@ -74,7 +75,7 @@ jQuery( document).ready(function( $ ) {
 			'cueicons'
 		],
 		flashName: 'flashmediaelement-cdn.swf',
-		pluginPath: '//cdn.jsdelivr.net/mediaelement/2.14.2/'
+		pluginPath: '//cdn.jsdelivr.net/mediaelement/2.15/'
 	});
 
 });

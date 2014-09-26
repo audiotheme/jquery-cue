@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>jquery.cue.js Demo</title>
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/fonts/genericons.css">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/mediaelement/2.15/mediaelementplayer.min.css">
+</head>
+<body>
+
+
+<div class="player"></div>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="//cdn.jsdelivr.net/mediaelement/2.15/mediaelement-and-player.min.js"></script>
+<!--<script src="assets/js/mediaelement-and-player.js"></script>-->
+<script src="../dist/jquery.cue.js"></script>
+<script>
+jQuery( document).ready(function( $ ) {
+
+	var $player = $( '.player' ),
+		$media = $( '<audio />', {
+			src: 'https://archive.org/download/corblund2012-09-18.matrix.flac/corblund2012-09-18.matrix.d1t08_CowsAround.mp3',
+		}).prependTo( $player );
+
+
+	$media.mediaelementplayer({
+		features: [
+			'cuehistory',
+			'playpause',
+			'progress',
+			'current',
+			'duration'
+		],
+		flashName: 'flashmediaelement-cdn.swf',
+		pluginPath: '//cdn.jsdelivr.net/mediaelement/2.15/',
+		success: function( media, domObject, player ) {
+
+		}
+	});
+
+});
+</script>
+</body>
+</html>

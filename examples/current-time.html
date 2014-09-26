@@ -1,0 +1,79 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>jquery.cue.js Demo</title>
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/fonts/genericons.css">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/mediaelement/2.15/mediaelementplayer.min.css">
+</head>
+<body>
+
+
+<div class="player"></div>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="//cdn.jsdelivr.net/mediaelement/2.15/mediaelement-and-player.min.js"></script>
+<!--<script src="assets/js/mediaelement-and-player.js"></script>-->
+<script>
+jQuery( document).ready(function( $ ) {
+
+	var $player = $( '.player' ),
+		$media = $( '<audio />', {
+			src: 'https://archive.org/download/corblund2012-09-18.matrix.flac/corblund2012-09-18.matrix.d1t08_CowsAround.mp3',
+		}).prependTo( $player );
+
+
+	$.extend( MediaElementPlayer.prototype, {
+		buildskipahead: function( player, controls, layers, media ) {
+			var currentTime = 30.1,
+				isLoaded = false,
+				mf = mejs.MediaFeatures;
+
+			media.addEventListener( 'playing', function() {
+				if ( isLoaded || currentTime < 1 ) {
+					return;
+				}
+
+				if ( mf.isiOS ) {
+					// The currentTime can't be set in iOS until the desired time
+					// has been buffered. Poll the buffered end time until it's
+					// possible to set currentTime. The audio may begin playing from
+					// the beginning before skipping ahead.
+					var intervalId = setInterval(function() {
+						if ( currentTime < media.buffered.end( 0 ) ) {
+							clearInterval( intervalId );
+							player.setCurrentTime( currentTime );
+							player.setCurrentRail();
+						}
+					}, 50 );
+				} else {
+					try {
+						player.setCurrentTime( currentTime );
+						player.setCurrentRail();
+					} catch ( exp ) { }
+				}
+
+				isLoaded = true;
+			});
+		}
+	});
+
+	$media.mediaelementplayer({
+		audioHeight: 30,
+		features: [
+			'skipahead',
+			'playpause',
+			'progress',
+			'current',
+			'duration'
+		],
+		flashName: 'flashmediaelement-cdn.swf',
+		pluginPath: '//cdn.jsdelivr.net/mediaelement/2.15/'
+	});
+
+});
+</script>
+</body>
+</html>
