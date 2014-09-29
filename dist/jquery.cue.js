@@ -75,6 +75,11 @@ window.cue = window.cue || {};
 			if ( $data.length ) {
 				data = $.parseJSON( $data.first().html() );
 
+				// Add the signature.
+				if ( 'cueSignature' in data ) {
+					settings.cueSignature = data.cueSignature;
+				}
+
 				// Add the tracks.
 				if ( ( 'undefined' === typeof options || 'undefined' === typeof options.cuePlaylistTracks ) && 'tracks' in data ) {
 					settings.cuePlaylistTracks = data.tracks;
@@ -204,7 +209,46 @@ window.cue = window.cue || {};
 (function( window, $, undefined ) {
 	'use strict';
 
-	var cueSuccess  = $.fn.cuePlaylist.defaults;
+	var historySuccess, originalSuccess,
+		mePlayerInit = mejs.MediaElementPlayer.prototype.init;
+
+	/**
+	 * Proxy the MediaElementPlayer init method to proxy the success callback.
+	 */
+	mejs.MediaElementPlayer.prototype.init = function() {
+		// Set up if the cuehistory feature is declared.
+		if ( -1 !== $.inArray( 'cuehistory', this.options.features ) ) {
+			originalSuccess = this.options.success;
+			this.options.success = historySuccess;
+		}
+		mePlayerInit.call( this );
+	};
+
+	/**
+	 * Proxied MediaElementPlayer success callback.
+	 */
+	historySuccess = function( media, domObject, player ) {
+		var isPlaying, status,
+			history = new History( player.options.cueId || '', player.options.cueSignature || '' ),
+			autoplay = ( 'autoplay' === media.getAttribute( 'autoplay' ) ),
+			mf = mejs.MediaFeatures;
+
+		if ( ! history || undefined === history.get( 'trackIndex' ) ) {
+			return;
+		}
+
+		// Don't start playing if on a mobile device or if autoplay is active.
+		status = history ? history.get( 'status' ) : '';
+		isPlaying = ( 'playing' === status && ! mf.isiOS && ! mf.isAndroid && ! autoplay );
+
+		if ( 'cuePlaylistTracks' in player.options && player.options.cuePlaylistTracks.length ) {
+			player.cueSetCurrentTrack( history.get( 'trackIndex' ), isPlaying );
+		} else if ( isPlaying ) {
+			player.cuePlay();
+		}
+
+		originalSuccess.call( this, media, domObject, player );
+	};
 
 	$.extend( mejs.MepDefaults, {
 		cueId: 'cue',
@@ -215,9 +259,10 @@ window.cue = window.cue || {};
 		cueHistory: null,
 
 		buildcuehistory: function( player, controls, layers, media ) {
-			var loaded = false,
+			var currentTime, history,
 				$container = player.container.closest( player.options.cueSelectors.playlist ),
-				currentTime, history;
+				isLoaded = false,
+				mf = mejs.MediaFeatures;
 
 			history = player.cueHistory = new History( player.options.cueId, player.options.cueSignature );
 			currentTime = history.get( 'currentTime' );
@@ -236,25 +281,35 @@ window.cue = window.cue || {};
 			});
 
 			// Only set the current time on initial load.
-			// @todo See mep-feature-sourcechooser.js
-			media.addEventListener( 'loadedmetadata', function() {
-				if ( ! loaded && currentTime ) {
-					player.setCurrentTime( currentTime );
-					player.setCurrentRail();
+			media.addEventListener( 'playing', function() {
+				if ( isLoaded || currentTime < 1 ) {
+					return;
 				}
-				loaded = true;
-			});
 
-			// @todo Account for autoplay.
-			$container.on( 'success.cue', function( e, media, domObject, player ) {
-				var status;
+				if ( mf.isiOS ) {
+					// Tested on iOS 7 on an iPad, may need to update for other devices.
 
-				if ( history && undefined !== history.get( 'trackIndex' ) ) {
-					status = history ? history.get( 'status' ) : '';
-					player.cueSetCurrentTrack( history.get( 'trackIndex' ), ( 'playing' === status ) );
+					// The currentTime can't be set in iOS until the desired time
+					// has been buffered. Poll the buffered end time until it's
+					// possible to set currentTime. The audio may begin playing from
+					// the beginning before skipping ahead.
+					var intervalId = setInterval(function() {
+						if ( currentTime < media.buffered.end( 0 ) ) {
+							clearInterval( intervalId );
+							player.setCurrentTime( currentTime );
+							player.setCurrentRail();
+						}
+					}, 50 );
+				} else {
+					try {
+						player.setCurrentTime( currentTime );
+						player.setCurrentRail();
+					} catch ( exp ) { }
 				}
+
+				isLoaded = true;
 			});
-		},
+		}
 
 	});
 
@@ -342,11 +397,6 @@ window.cue = window.cue || {};
 			var player = this,
 				index = player.cueCurrentTrack + 1 >= player.options.cuePlaylistTracks.length ? 0 : player.cueCurrentTrack + 1;
 
-			// Determine if the playlist shouldn't loop.
-			if ( ! player.options.cuePlaylistLoop && 0 === index ) {
-				return;
-			}
-
 			player.$node.trigger( 'nextTrack.cue', player );
 			player.cueSetCurrentTrack( index );
 		}
@@ -357,7 +407,7 @@ window.cue = window.cue || {};
 (function( window, $, undefined ) {
 	'use strict';
 
-	var current;
+	var current, playTimeoutId;
 
 	$.extend( mejs.MepDefaults, {
 		cuePlaylistLoop: true,
@@ -449,9 +499,41 @@ window.cue = window.cue || {};
 
 			// Play the next track when one ends.
 			$media.on( 'ended.cue', function() {
+				var index = player.cueCurrentTrack + 1 >= player.options.cuePlaylistTracks.length ? 0 : player.cueCurrentTrack + 1;
+
+				// Determine if the playlist shouldn't loop.
+				if ( ! player.options.cuePlaylistLoop && 0 === index ) {
+					return;
+				}
+
 				player.$node.trigger( 'nextTrack.cue', player );
 				player.cuePlayNextTrack();
 			});
+		},
+
+		/**
+		 * Play the current track.
+		 *
+		 * Some browsers and plugins don't like it when play() is called
+		 * immediately after a file has been loaded (history autoplayback,
+		 * ended event, etc).
+		 *
+		 * Cycling through tracks quickly can also cause multiple sources to
+		 * begin playing without a way to control them, so clearing the timeout
+		 * helps prevent that.
+		 */
+		cuePlay: function() {
+			var player = this;
+
+			if ( ! player.media.paused && 'flash' !== player.media.pluginType ) {
+				return;
+			}
+
+			clearTimeout( playTimeoutId );
+
+			playTimeoutId = setTimeout(function() {
+				player.play();
+			}, 50 );
 		},
 
 		cueSetCurrentTrack: function( track, play ) {
@@ -471,8 +553,8 @@ window.cue = window.cue || {};
 				player.controls.find( '.mejs-duration' ).text( track.length );
 			}
 
-			player.pause();
-			if ( track.src ) {
+			if ( track.src && track.src !== player.media.src ) {
+				player.pause();
 				player.setSrc( track.src );
 				player.load();
 			}
@@ -480,10 +562,7 @@ window.cue = window.cue || {};
 			player.$node.trigger( 'setTrack.cue', [ track, player ]);
 
 			if ( track.src && ( 'undefined' === typeof play || play ) ) {
-				// Browsers don't seem to play without the timeout.
-				setTimeout( function() {
-					player.play();
-				}, 100 );
+				player.cuePlay();
 			}
 		}
 	});
