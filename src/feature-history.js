@@ -20,12 +20,20 @@
 	 * Proxied MediaElementPlayer success callback.
 	 */
 	historySuccess = function( media, domObject, player ) {
-		var isPlaying, status,
+		var isPlaying, status, volume,
 			history = new History( player.options.cueId || '', player.options.cueSignature || '' ),
 			autoplay = ( 'autoplay' === media.getAttribute( 'autoplay' ) ),
 			mf = mejs.MediaFeatures;
 
-		if ( ! history || undefined === history.get( 'trackIndex' ) ) {
+		if ( ! history ) {
+			return;
+		}
+
+		if ( undefined !== history.get( 'volume' ) ) {
+			media.setVolume( history.get( 'volume' ) );
+		}
+
+		if ( undefined === history.get( 'trackIndex' ) ) {
 			return;
 		}
 
@@ -70,6 +78,10 @@
 
 			media.addEventListener( 'timeupdate', function() {
 				history.set( 'currentTime', media.currentTime );
+			});
+
+			media.addEventListener( 'volumechange', function() {
+				history.set( 'volume', media.volume );
 			});
 
 			// Only set the current time on initial load.
@@ -127,6 +139,8 @@
 					value = ( 'playing' === value ) ? 'playing' : 'paused';
 				} else if ( 'trackIndex' === key ) {
 					value = parseInt( value, 10 );
+				} else if ( 'volume' === key ) {
+					value = parseFloat( value );
 				}
 			}
 
