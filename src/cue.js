@@ -142,6 +142,8 @@ window.cue = window.cue || {};
 				$container.removeClass( 'is-playing' );
 			});
 
+			$( player.options.cueSelectors.playlist ).removeClass( 'is-loading' );
+
 			$container.trigger( 'success.cue', [ media, domObject, player ]);
 		},
 		timeAndDurationSeparator: '<span class="mejs-time-separator"> / </span>'
