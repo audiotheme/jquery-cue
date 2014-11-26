@@ -25,26 +25,20 @@
 			autoplay = ( 'autoplay' === media.getAttribute( 'autoplay' ) ),
 			mf = mejs.MediaFeatures;
 
-		if ( ! history ) {
-			return;
-		}
-
-		if ( undefined !== history.get( 'volume' ) ) {
+		if ( history && undefined !== history.get( 'volume' ) ) {
 			media.setVolume( history.get( 'volume' ) );
 		}
 
-		if ( undefined === history.get( 'trackIndex' ) ) {
-			return;
-		}
+		if ( history && undefined !== history.get( 'trackIndex' ) ) {
+			// Don't start playing if on a mobile device or if autoplay is active.
+			status = history ? history.get( 'status' ) : '';
+			isPlaying = ( 'playing' === status && ! mf.isiOS && ! mf.isAndroid && ! autoplay );
 
-		// Don't start playing if on a mobile device or if autoplay is active.
-		status = history ? history.get( 'status' ) : '';
-		isPlaying = ( 'playing' === status && ! mf.isiOS && ! mf.isAndroid && ! autoplay );
-
-		if ( 'cuePlaylistTracks' in player.options && player.options.cuePlaylistTracks.length ) {
-			player.cueSetCurrentTrack( history.get( 'trackIndex' ), isPlaying );
-		} else if ( isPlaying ) {
-			player.cuePlay();
+			if ( 'cuePlaylistTracks' in player.options && player.options.cuePlaylistTracks.length ) {
+				player.cueSetCurrentTrack( history.get( 'trackIndex' ), isPlaying );
+			} else if ( isPlaying ) {
+				player.cuePlay();
+			}
 		}
 
 		originalSuccess.call( this, media, domObject, player );
