@@ -1,5 +1,5 @@
 /*!
- * jquery.cue.js - 1.1.2
+ * jquery.cue.js - 1.1.3
  * Playlist and other functionality for MediaElement.js
  * http://audiotheme.com/
  *
@@ -49,7 +49,7 @@ window.cue = window.cue || {};
 	 * @return {jQuery} Chainable jQuery collection.
 	 */
 	$.fn.cuePlaylist = function( options ) {
-		var settings = $.extend( $.fn.cuePlaylist.defaults, options );
+		var settings = $.extend({}, $.fn.cuePlaylist.defaults, options );
 
 		// Add selector settings.
 		settings.cueSelectors = $.extend({}, mejs.MepDefaults.cueSelectors, {
@@ -163,7 +163,6 @@ window.cue = window.cue || {};
 	'use strict';
 
 	$.extend( MediaElementPlayer.prototype, {
-
 		buildcueartwork: function( player, controls, layers ) {
 			var $artwork = layers.append( '<span class="mejs-track-artwork"><img src=""></span>' ).find( '.mejs-track-artwork' );
 
@@ -178,7 +177,6 @@ window.cue = window.cue || {};
 				$artwork.closest( player.options.cueSelectors.playlist ).toggleClass( 'has-artwork', hasArtwork );
 			});
 		}
-
 	});
 
 })( this, jQuery );
@@ -187,7 +185,6 @@ window.cue = window.cue || {};
 	'use strict';
 
 	$.extend( MediaElementPlayer.prototype, {
-
 		buildcuecurrentdetails: function( player, controls, layers ) {
 			var $artist, $title;
 
@@ -203,7 +200,6 @@ window.cue = window.cue || {};
 				$title.html( track.title );
 			});
 		}
-
 	});
 
 })( this, jQuery );
@@ -371,7 +367,7 @@ window.cue = window.cue || {};
 
 })( this, jQuery );
 
-(function( window, $, cue, undefined ) {
+(function( window, $, undefined ) {
 	'use strict';
 
 	// Add this feature after all controls have been built.
@@ -386,7 +382,7 @@ window.cue = window.cue || {};
 		}
 	});
 
-})( this, jQuery, window.cue );
+})( this, jQuery );
 
 (function( window, $, cue, undefined ) {
 	'use strict';
@@ -436,6 +432,7 @@ window.cue = window.cue || {};
 	});
 
 	$.extend( MediaElementPlayer.prototype, {
+		$cueTracks: $(),
 		cueCurrentTrack: 0,
 
 		/**
@@ -448,11 +445,7 @@ window.cue = window.cue || {};
 				$playlist = player.container.closest( selectors.playlist ),
 				$tracks = $playlist.find( selectors.track );
 
-			// Add an 'is-playable' class to tracks with an audio src file.
-			$tracks.filter( function( i ) {
-				var track = player.options.cuePlaylistTracks[ i ] || {};
-				return 'src' in track && '' !== track.src;
-			}).addClass( 'is-playable' );
+			player.cueSetupTracklist();
 
 			// Set the current track when initialized.
 			player.cueSetCurrentTrack( player.options.cuePlaylistTracks[ 0 ], false );
@@ -472,11 +465,11 @@ window.cue = window.cue || {};
 			// Play a track when it's clicked in the track list.
 			$playlist.on( 'click.cue', selectors.track, function( e ) {
 				var $track = $( this ),
-					index = $tracks.index( $track ),
+					index = player.$cueTracks.index( $track ),
 					$target = $( e.target ),
 					$forbidden = $track.find( 'a, .js-disable-playpause, ' + selectors.trackProgressBar );
 
-				// Don't play when links or elements with a 'js-disable-play' class are clicked.
+				// Don't toggle play status when links or elements with a 'js-disable-play' class are clicked.
 				if ( ! $target.is( $forbidden ) && ! $forbidden.find( $target ).length ) {
 					// Update the reference to the current track and player.
 					current.setPlayer( player ).setTrack( $track );
@@ -492,14 +485,14 @@ window.cue = window.cue || {};
 
 			// Toggle the 'is-playing' class and set the current track elements.
 			$media.on( 'play.cue', function() {
-				var $track = $tracks.removeClass( 'is-playing' ).eq( player.cueCurrentTrack ).addClass( 'is-playing' );
+				var $track = player.$cueTracks.removeClass( 'is-playing' ).eq( player.cueCurrentTrack ).addClass( 'is-playing' );
 
 				// Update the reference to the current track and player.
 				current.setPlayer( player ).setTrack( $track );
 			});
 
 			$media.on( 'pause.cue', function() {
-				$tracks.removeClass( 'is-playing' );
+				player.$cueTracks.removeClass( 'is-playing' );
 			});
 
 			// Update the current track's duration and current time.
@@ -525,7 +518,7 @@ window.cue = window.cue || {};
 		 * Play the current track.
 		 *
 		 * Some browsers and plugins don't like it when play() is called
-		 * immediately after a file has been loaded (history autoplayback,
+		 * immediately after a file has been loaded (history autoplay back,
 		 * ended event, etc).
 		 *
 		 * Cycling through tracks quickly can also cause multiple sources to
@@ -574,6 +567,20 @@ window.cue = window.cue || {};
 			if ( track.src && ( 'undefined' === typeof play || play ) ) {
 				player.cuePlay();
 			}
+		},
+
+		cueSetupTracklist: function() {
+			var player = this,
+				selectors = player.options.cueSelectors,
+				$playlist = player.container.closest( selectors.playlist );
+
+			player.$cueTracks = $playlist.find( selectors.track );
+
+			// Add an 'is-playable' class to tracks with an audio src file.
+			player.$cueTracks.filter( function( i ) {
+				var track = player.options.cuePlaylistTracks[ i ] || {};
+				return 'src' in track && '' !== track.src;
+			}).addClass( 'is-playable' );
 		}
 	});
 
