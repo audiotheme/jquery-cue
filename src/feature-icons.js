@@ -1,4 +1,4 @@
-(function( window, $, cue, undefined ) {
+(function( window, $, undefined ) {
 	'use strict';
 
 	// Add this feature after all controls have been built.
@@ -13,4 +13,4 @@
 		}
 	});
 
-})( this, jQuery, window.cue );
+})( this, jQuery );

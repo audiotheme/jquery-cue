@@ -2,7 +2,6 @@
 	'use strict';
 
 	$.extend( MediaElementPlayer.prototype, {
-
 		buildcuecurrentdetails: function( player, controls, layers ) {
 			var $artist, $title;
 
@@ -18,7 +17,6 @@
 				$title.html( track.title );
 			});
 		}
-
 	});
 
 })( this, jQuery );

@@ -2,7 +2,6 @@
 	'use strict';
 
 	$.extend( MediaElementPlayer.prototype, {
-
 		buildcueartwork: function( player, controls, layers ) {
 			var $artwork = layers.append( '<span class="mejs-track-artwork"><img src=""></span>' ).find( '.mejs-track-artwork' );
 
@@ -17,7 +16,6 @@
 				$artwork.closest( player.options.cueSelectors.playlist ).toggleClass( 'has-artwork', hasArtwork );
 			});
 		}
-
 	});
 
 })( this, jQuery );
