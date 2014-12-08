@@ -41,7 +41,7 @@ window.cue = window.cue || {};
 	 * @return {jQuery} Chainable jQuery collection.
 	 */
 	$.fn.cuePlaylist = function( options ) {
-		var settings = $.extend( $.fn.cuePlaylist.defaults, options );
+		var settings = $.extend({}, $.fn.cuePlaylist.defaults, options );
 
 		// Add selector settings.
 		settings.cueSelectors = $.extend({}, mejs.MepDefaults.cueSelectors, {
