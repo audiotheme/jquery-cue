@@ -1,7 +1,7 @@
 /*!
- * jquery.cue.js - 1.1.3
+ * jquery.cue.js - 1.1.4
  * Playlist and other functionality for MediaElement.js
- * http://audiotheme.com/
+ * https://audiotheme.com/
  *
  * Copyright 2014, AudioTheme LLC
  * License: MIT
@@ -262,7 +262,8 @@ window.cue = window.cue || {};
 			var currentTime, history,
 				$container = player.container.closest( player.options.cueSelectors.playlist ),
 				isLoaded = false,
-				mf = mejs.MediaFeatures;
+				mf = mejs.MediaFeatures,
+				isSafari = /Safari/.test( navigator.userAgent ) && /Apple Computer/.test( navigator.vendor );
 
 			history = player.cueHistory = new History( player.options.cueId, player.options.cueSignature );
 			currentTime = history.get( 'currentTime' );
@@ -290,13 +291,16 @@ window.cue = window.cue || {};
 					return;
 				}
 
-				if ( mf.isiOS ) {
-					// Tested on iOS 7 on an iPad, may need to update for other devices.
+				if ( mf.isiOS || isSafari ) {
+					// Tested on the following devices (may need to update for other devices):
+					// - iOS 7 on iPad
+					// - Safari 9 on OSX
 
 					// The currentTime can't be set in iOS until the desired time
 					// has been buffered. Poll the buffered end time until it's
-					// possible to set currentTime. The audio may begin playing from
-					// the beginning before skipping ahead.
+					// possible to set currentTime. This fix should work in any
+					// browser, but is not ideal because the audio may begin
+					// playing from the beginning before skipping ahead.
 					var intervalId = setInterval(function() {
 						if ( currentTime < media.buffered.end( 0 ) ) {
 							clearInterval( intervalId );
