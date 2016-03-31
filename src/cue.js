@@ -136,6 +136,11 @@ window.cue = window.cue || {};
 				}).trigger( 'resize.cue' );
 			}
 
+			// Hide the duration and time separator if the duration isn't available.
+			if ( isNaN( media.duration ) ) {
+				player.container.find( '.mejs-time-separator, .mejs-duration' ).hide();
+			}
+
 			$media.on( 'play.cue', function() {
 				$container.addClass( 'is-playing' );
 			}).on( 'pause.cue', function() {
