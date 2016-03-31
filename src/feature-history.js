@@ -20,7 +20,7 @@
 	 * Proxied MediaElementPlayer success callback.
 	 */
 	historySuccess = function( media, domObject, player ) {
-		var isPlaying, status, volume,
+		var isPlaying, status,
 			history = new History( player.options.cueId || '', player.options.cueSignature || '' ),
 			autoplay = ( 'autoplay' === media.getAttribute( 'autoplay' ) ),
 			mf = mejs.MediaFeatures;
@@ -54,7 +54,6 @@
 
 		buildcuehistory: function( player, controls, layers, media ) {
 			var currentTime, history,
-				$container = player.container.closest( player.options.cueSelectors.playlist ),
 				isLoaded = false,
 				mf = mejs.MediaFeatures,
 				isSafari = /Safari/.test( navigator.userAgent ) && /Apple Computer/.test( navigator.vendor );

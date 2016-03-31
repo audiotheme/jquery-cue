@@ -30,8 +30,7 @@
 		buildcueplaylist: function( player, controls, layers, media ) {
 			var selectors = player.options.cueSelectors,
 				$media = $( media ),
-				$playlist = player.container.closest( selectors.playlist ),
-				$tracks = $playlist.find( selectors.track );
+				$playlist = player.container.closest( selectors.playlist );
 
 			player.cueSetupTracklist();
 
@@ -64,7 +63,11 @@
 
 					if ( player.cueCurrentTrack === index && '' !== player.options.cuePlaylistTracks[ index ].src ) {
 						// Toggle play/pause state.
-						media.paused ? media.play() : media.pause();
+						if ( media.paused) {
+							media.play();
+						} else {
+							media.pause();
+						}
 					} else {
 						player.cueSetCurrentTrack( index );
 					}

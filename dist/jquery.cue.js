@@ -144,6 +144,11 @@ window.cue = window.cue || {};
 				}).trigger( 'resize.cue' );
 			}
 
+			// Hide the duration and time separator if the duration isn't available.
+			if ( isNaN( media.duration ) ) {
+				player.container.find( '.mejs-time-separator, .mejs-duration' ).hide();
+			}
+
 			$media.on( 'play.cue', function() {
 				$container.addClass( 'is-playing' );
 			}).on( 'pause.cue', function() {
@@ -226,7 +231,7 @@ window.cue = window.cue || {};
 	 * Proxied MediaElementPlayer success callback.
 	 */
 	historySuccess = function( media, domObject, player ) {
-		var isPlaying, status, volume,
+		var isPlaying, status,
 			history = new History( player.options.cueId || '', player.options.cueSignature || '' ),
 			autoplay = ( 'autoplay' === media.getAttribute( 'autoplay' ) ),
 			mf = mejs.MediaFeatures;
@@ -260,7 +265,6 @@ window.cue = window.cue || {};
 
 		buildcuehistory: function( player, controls, layers, media ) {
 			var currentTime, history,
-				$container = player.container.closest( player.options.cueSelectors.playlist ),
 				isLoaded = false,
 				mf = mejs.MediaFeatures,
 				isSafari = /Safari/.test( navigator.userAgent ) && /Apple Computer/.test( navigator.vendor );
@@ -446,8 +450,7 @@ window.cue = window.cue || {};
 		buildcueplaylist: function( player, controls, layers, media ) {
 			var selectors = player.options.cueSelectors,
 				$media = $( media ),
-				$playlist = player.container.closest( selectors.playlist ),
-				$tracks = $playlist.find( selectors.track );
+				$playlist = player.container.closest( selectors.playlist );
 
 			player.cueSetupTracklist();
 
@@ -480,7 +483,11 @@ window.cue = window.cue || {};
 
 					if ( player.cueCurrentTrack === index && '' !== player.options.cuePlaylistTracks[ index ].src ) {
 						// Toggle play/pause state.
-						media.paused ? media.play() : media.pause();
+						if ( media.paused) {
+							media.play();
+						} else {
+							media.pause();
+						}
 					} else {
 						player.cueSetCurrentTrack( index );
 					}
