@@ -59,7 +59,7 @@ module.exports = function( grunt ) {
 		watch: {
 			js: {
 				files: ['<%= jshint.all %>'],
-				tasks: ['default']
+				tasks: ['concat']
 			},
 		}
 
