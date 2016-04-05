@@ -29,7 +29,7 @@
 		 */
 		buildcueplaylist: function( player, controls, layers, media ) {
 			var selectors = player.options.cueSelectors,
-				$media = $( media ),
+				$media = player.$media,
 				$playlist = player.container.closest( selectors.playlist );
 
 			player.cueSetupTracklist();
@@ -100,8 +100,11 @@
 					return;
 				}
 
-				player.$node.trigger( 'nextTrack.cue', player );
-				player.cuePlayNextTrack();
+				// Give other 'end' events a chance to grab the current track.
+				setTimeout(function() {
+					player.$node.trigger( 'nextTrack.cue', player );
+					player.cuePlayNextTrack();
+				}, 250 );
 			});
 		},
 
