@@ -130,13 +130,17 @@
 			}, 50 );
 		},
 
+		cueGetCurrentTrack: function() {
+			return this.options.cuePlaylistTracks[ this.cueCurrentTrack ];
+		},
+
 		cueSetCurrentTrack: function( track, play ) {
 			var player = this,
 				selectors = player.options.cueSelectors;
 
 			if ( 'number' === typeof track ) {
 				player.cueCurrentTrack = track;
-				track = player.options.cuePlaylistTracks[ player.cueCurrentTrack ];
+				track = player.cueGetCurrentTrack();
 			}
 
 			player.container.closest( selectors.playlist )
