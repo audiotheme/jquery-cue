@@ -34,6 +34,10 @@
 			status = history ? history.get( 'status' ) : '';
 			isPlaying = ( 'playing' === status && ! mf.isiOS && ! mf.isAndroid && ! autoplay );
 
+			// Set a global flag to let other methods know if the track has been
+			// auto-resumed.
+			player.cueAutoResume = isPlaying;
+
 			if ( 'cuePlaylistTracks' in player.options && player.options.cuePlaylistTracks.length ) {
 				player.cueSetCurrentTrack( history.get( 'trackIndex' ), isPlaying );
 			} else if ( isPlaying ) {
@@ -51,6 +55,7 @@
 
 	$.extend( MediaElementPlayer.prototype, {
 		cueHistory: null,
+		cueAutoResume: false,
 
 		buildcuehistory: function( player, controls, layers, media ) {
 			var currentTime, history,
