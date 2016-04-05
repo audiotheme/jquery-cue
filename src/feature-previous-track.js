@@ -2,7 +2,7 @@
 	'use strict';
 
 	$.extend( MediaElementPlayer.prototype, {
-		buildcueprevioustrack: function( player, controls ) {
+		buildcueprevioustrack: function( player, controls, layers, media ) {
 			$( '<div class="mejs-button mejs-previous-button mejs-previous">' +
 					'<button type="button" aria-controls="' + player.id + '" title="' + cue.l10n.previousTrack + '"></button>' +
 					'</div>' )
