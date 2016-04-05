@@ -2,12 +2,22 @@
 	'use strict';
 
 	$.extend( MediaElementPlayer.prototype, {
-		buildcuenexttrack: function( player, controls ) {
+		buildcuenexttrack: function( player, controls, layers, media ) {
 			$( '<div class="mejs-button mejs-next-button mejs-next">' +
 					'<button type="button" aria-controls="' + player.id + '" title="' + cue.l10n.nextTrack + '"></button>' +
 					'</div>' )
 				.appendTo( controls )
 				.on( 'click.cue', function() {
+					var state,
+						track = player.cueGetCurrentTrack() || {};
+
+					state = $.extend({}, {
+						currentTime: media.currentTime,
+						duration: media.duration,
+						src: media.src
+					});
+
+					player.$node.trigger( 'skipNext.cue', [ state, track ] );
 					player.cuePlayNextTrack();
 				});
 		},

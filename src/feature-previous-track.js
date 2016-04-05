@@ -8,6 +8,16 @@
 					'</div>' )
 				.appendTo( controls )
 				.on( 'click.cue', function() {
+					var state,
+						track = player.cueGetCurrentTrack() || {};
+
+					state = $.extend({}, {
+						currentTime: media.currentTime,
+						duration: media.duration,
+						src: media.src
+					});
+
+					player.$node.trigger( 'skipBack.cue', [ state, track ] );
 					player.cuePlayPreviousTrack();
 				});
 		},
