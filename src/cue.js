@@ -68,6 +68,11 @@ window.cue = window.cue || {};
 				data = $.parseJSON( $data.first().html() );
 
 				// Add the signature.
+				if ( 'signature' in data ) {
+					settings.cueSignature = data.signature;
+				}
+
+				// Add the signature (back-compat).
 				if ( 'cueSignature' in data ) {
 					settings.cueSignature = data.cueSignature;
 				}
