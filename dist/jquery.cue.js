@@ -1,5 +1,5 @@
 /*!
- * jquery.cue.js - 1.1.4
+ * jquery.cue.js - 1.1.5
  * Playlist and other functionality for MediaElement.js
  * https://audiotheme.com/
  *
@@ -245,6 +245,10 @@ window.cue = window.cue || {};
 			status = history ? history.get( 'status' ) : '';
 			isPlaying = ( 'playing' === status && ! mf.isiOS && ! mf.isAndroid && ! autoplay );
 
+			// Set a global flag to let other methods know if the track has been
+			// auto-resumed.
+			player.cueAutoResume = isPlaying;
+
 			if ( 'cuePlaylistTracks' in player.options && player.options.cuePlaylistTracks.length ) {
 				player.cueSetCurrentTrack( history.get( 'trackIndex' ), isPlaying );
 			} else if ( isPlaying ) {
@@ -262,6 +266,7 @@ window.cue = window.cue || {};
 
 	$.extend( MediaElementPlayer.prototype, {
 		cueHistory: null,
+		cueAutoResume: false,
 
 		buildcuehistory: function( player, controls, layers, media ) {
 			var currentTime, history,
@@ -396,12 +401,22 @@ window.cue = window.cue || {};
 	'use strict';
 
 	$.extend( MediaElementPlayer.prototype, {
-		buildcuenexttrack: function( player, controls ) {
+		buildcuenexttrack: function( player, controls, layers, media ) {
 			$( '<div class="mejs-button mejs-next-button mejs-next">' +
 					'<button type="button" aria-controls="' + player.id + '" title="' + cue.l10n.nextTrack + '"></button>' +
 					'</div>' )
 				.appendTo( controls )
 				.on( 'click.cue', function() {
+					var state,
+						track = player.cueGetCurrentTrack() || {};
+
+					state = $.extend({}, {
+						currentTime: media.currentTime,
+						duration: media.duration,
+						src: media.src
+					});
+
+					player.$node.trigger( 'skipNext.cue', [ state, track ] );
 					player.cuePlayNextTrack();
 				});
 		},
@@ -449,7 +464,7 @@ window.cue = window.cue || {};
 		 */
 		buildcueplaylist: function( player, controls, layers, media ) {
 			var selectors = player.options.cueSelectors,
-				$media = $( media ),
+				$media = player.$media,
 				$playlist = player.container.closest( selectors.playlist );
 
 			player.cueSetupTracklist();
@@ -520,8 +535,11 @@ window.cue = window.cue || {};
 					return;
 				}
 
-				player.$node.trigger( 'nextTrack.cue', player );
-				player.cuePlayNextTrack();
+				// Give other 'end' events a chance to grab the current track.
+				setTimeout(function() {
+					player.$node.trigger( 'nextTrack.cue', player );
+					player.cuePlayNextTrack();
+				}, 250 );
 			});
 		},
 
@@ -550,13 +568,17 @@ window.cue = window.cue || {};
 			}, 50 );
 		},
 
+		cueGetCurrentTrack: function() {
+			return this.options.cuePlaylistTracks[ this.cueCurrentTrack ];
+		},
+
 		cueSetCurrentTrack: function( track, play ) {
 			var player = this,
 				selectors = player.options.cueSelectors;
 
 			if ( 'number' === typeof track ) {
 				player.cueCurrentTrack = track;
-				track = player.options.cuePlaylistTracks[ player.cueCurrentTrack ];
+				track = player.cueGetCurrentTrack();
 			}
 
 			player.container.closest( selectors.playlist )
@@ -692,12 +714,22 @@ window.cue = window.cue || {};
 	'use strict';
 
 	$.extend( MediaElementPlayer.prototype, {
-		buildcueprevioustrack: function( player, controls ) {
+		buildcueprevioustrack: function( player, controls, layers, media ) {
 			$( '<div class="mejs-button mejs-previous-button mejs-previous">' +
 					'<button type="button" aria-controls="' + player.id + '" title="' + cue.l10n.previousTrack + '"></button>' +
 					'</div>' )
 				.appendTo( controls )
 				.on( 'click.cue', function() {
+					var state,
+						track = player.cueGetCurrentTrack() || {};
+
+					state = $.extend({}, {
+						currentTime: media.currentTime,
+						duration: media.duration,
+						src: media.src
+					});
+
+					player.$node.trigger( 'skipBack.cue', [ state, track ] );
 					player.cuePlayPreviousTrack();
 				});
 		},
