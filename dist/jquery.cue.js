@@ -1,5 +1,5 @@
 /*!
- * jquery.cue.js - 1.1.5
+ * jquery.cue.js - 1.1.6
  * Playlist and other functionality for MediaElement.js
  * https://audiotheme.com/
  *
@@ -76,6 +76,11 @@ window.cue = window.cue || {};
 				data = $.parseJSON( $data.first().html() );
 
 				// Add the signature.
+				if ( 'signature' in data ) {
+					settings.cueSignature = data.signature;
+				}
+
+				// Add the signature (back-compat).
 				if ( 'cueSignature' in data ) {
 					settings.cueSignature = data.cueSignature;
 				}
@@ -145,9 +150,11 @@ window.cue = window.cue || {};
 			}
 
 			// Hide the duration and time separator if the duration isn't available.
-			if ( isNaN( media.duration ) ) {
-				player.container.find( '.mejs-time-separator, .mejs-duration' ).hide();
-			}
+			$media.on( 'loadedmetadata', function( e ) {
+				if ( isNaN( e.target.duration ) || ! isFinite( e.target.duration ) ) {
+					player.container.find( '.mejs-time-separator, .mejs-duration' ).hide();
+				}
+			} );
 
 			$media.on( 'play.cue', function() {
 				$container.addClass( 'is-playing' );
@@ -330,8 +337,21 @@ window.cue = window.cue || {};
 
 	});
 
+	function storageAvailable( type ) {
+		try {
+			var storage = window[ type ],
+				x = '__storage_test__';
+			storage.setItem( x, x );
+			storage.removeItem( x );
+			return true;
+		}
+		catch( e ) {
+			return false;
+		}
+	}
+
 	function History( id, signature ) {
-		var data = sessionStorage || {},
+		var data = storageAvailable( 'sessionStorage' ) ? sessionStorage : {},
 			signatureProp = id + '-signature';
 
 		this.set = function( key, value ) {

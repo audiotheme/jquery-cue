@@ -1,12 +1,9 @@
 {
   "name": "jquery-cue",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "description": "Playlist functionality for MediaElement.js",
-  "homepage": "http://audiotheme.com/",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/AudioTheme/jquery-cue.git"
-  },
+  "homepage": "https://audiotheme.com/",
+  "repository": "audiotheme/jquery-cue",
   "bugs": {
     "url": "https://github.com/AudioTheme/jquery-cue/issues"
   },
@@ -14,7 +11,7 @@
   "author": {
     "name": "Brady Vercher",
     "email": "brady@audiotheme.com",
-    "url": "http://audiotheme.com/"
+    "url": "https://audiotheme.com/"
   },
   "engines": {
     "node": ">= 0.8.0"
