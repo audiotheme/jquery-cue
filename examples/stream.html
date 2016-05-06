@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>jquery.cue.js Demo</title>
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/fonts/genericons.css">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/mediaelement/2.18/mediaelementplayer.min.css">
+<link rel="stylesheet" href="assets/css/mediaelement.css">
+</head>
+<body>
+
+
+<div class="playlist">
+	<ol class="tracks">
+		<li class="track">Shoutcast Stream</li>
+	</ol>
+</div>
+
+<p>
+	http://server-26.stream-server.nl:8692/;stream.mp3
+</p>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="//cdn.jsdelivr.net/mediaelement/2.18/mediaelement-and-player.min.js"></script>
+<script src="../dist/jquery.cue.js"></script>
+<script>
+jQuery( document).ready(function( $ ) {
+
+	$( '.playlist' ).cuePlaylist({
+		cuePlaylistLoop: false,
+		cuePlaylistTracks: [
+			{
+				src: 'http://server-26.stream-server.nl:8692/;stream.mp3',
+				title: 'Shoutcast'
+			}
+		],
+		cueSelectors: {
+			playlist: '.playlist',
+			track: '.track',
+			tracklist: '.tracks'
+		},
+		features: [
+			'cueprevioustrack',
+			'playpause',
+			'cuenexttrack',
+			'progress',
+			'current',
+			'duration',
+			'cueplaylist',
+			'cueplaylisttoggle'
+		],
+		flashName: 'flashmediaelement-cdn.swf',
+		pluginPath: '//cdn.jsdelivr.net/mediaelement/2.18/'
+	});
+
+});
+</script>
+</body>
+</html>
