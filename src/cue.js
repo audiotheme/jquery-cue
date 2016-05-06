@@ -142,9 +142,11 @@ window.cue = window.cue || {};
 			}
 
 			// Hide the duration and time separator if the duration isn't available.
-			if ( isNaN( media.duration ) ) {
-				player.container.find( '.mejs-time-separator, .mejs-duration' ).hide();
-			}
+			$media.on( 'loadedmetadata', function( e ) {
+				if ( isNaN( e.target.duration ) || ! isFinite( e.target.duration ) ) {
+					player.container.find( '.mejs-time-separator, .mejs-duration' ).hide();
+				}
+			} );
 
 			$media.on( 'play.cue', function() {
 				$container.addClass( 'is-playing' );
