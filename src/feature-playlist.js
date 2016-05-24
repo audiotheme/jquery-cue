@@ -4,7 +4,7 @@
 	var current, playTimeoutId;
 
 	$.extend( mejs.MepDefaults, {
-		cuePlaylistLoop: true,
+		cuePlaylistLoop: false,
 		cuePlaylistTracks: []
 	});
 
