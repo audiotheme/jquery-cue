@@ -1,5 +1,5 @@
 /*!
- * jquery.cue.js - 1.1.6
+ * jquery.cue.js - 1.1.7
  * Playlist and other functionality for MediaElement.js
  * https://audiotheme.com/
  *
@@ -117,6 +117,7 @@ window.cue = window.cue || {};
 
 	$.fn.cuePlaylist.defaults = {
 		autosizeProgress: false,
+		autoRewind: false,
 		cuePlaylistLoop: true,
 		cuePlaylistTracks: [],
 		cueSkin: 'cue-skin-default',
@@ -459,7 +460,7 @@ window.cue = window.cue || {};
 	var current, playTimeoutId;
 
 	$.extend( mejs.MepDefaults, {
-		cuePlaylistLoop: true,
+		cuePlaylistLoop: false,
 		cuePlaylistTracks: []
 	});
 
