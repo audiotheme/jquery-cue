@@ -109,6 +109,7 @@ window.cue = window.cue || {};
 
 	$.fn.cuePlaylist.defaults = {
 		autosizeProgress: false,
+		autoRewind: false,
 		cuePlaylistLoop: true,
 		cuePlaylistTracks: [],
 		cueSkin: 'cue-skin-default',
