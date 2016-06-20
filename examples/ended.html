@@ -1,0 +1,59 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>jquery.cue.js Demo</title>
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/fonts/genericons.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/mediaelement/2.21.1/mediaelementplayer.min.css">
+</head>
+<body>
+
+
+<div class="player"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<!--<script src="https://cdn.jsdelivr.net/mediaelement/2.21.1/mediaelement-and-player.min.js"></script>-->
+<script src="assets/js/mediaelement-and-player.js"></script>
+<script>
+jQuery( document).ready(function( $ ) {
+
+	/*var media = new Audio();
+	media.src = 'https://archive.org/download/corblund2012-09-18.matrix.flac/corblund2012-09-18.matrix.d1t22_IWannaBeInTheCavalry.mp3';
+	media.play();
+
+	media.addEventListener( 'play', function() {
+		console.log( 'play' );
+	});
+
+	media.addEventListener( 'ended', function() {
+		console.log( 'ended' );
+	});*/
+
+	var $player = $( '.player' ),
+		$media = $( '<audio />', {
+			src: 'https://archive.org/download/gpn2007-07-05.flac16/gpn2007-07-05t01.mp3',
+		}).prependTo( $player );
+
+	$media.mediaelementplayer({
+		audioHeight: 30,
+		autoRewind: false,
+		features: [
+			'playpause',
+			'progress',
+			'current',
+			'duration'
+		],
+		//flashName: 'flashmediaelement-cdn.swf',
+		//pluginPath: 'https://cdn.jsdelivr.net/mediaelement/2.21.1/'
+	});
+
+	$media[0].addEventListener( 'ended', function() {
+		console.log( 'ended' );
+	});
+
+});
+</script>
+</body>
+</html>
