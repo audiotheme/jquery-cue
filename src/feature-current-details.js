@@ -11,10 +11,11 @@
 
 			player.$node.on( 'setTrack.cue', function( e, track, player ) {
 				track.meta = track.meta || {};
-				track.title = track.title || {};
+				track.title = track.title || '';
 
 				$artist.html( track.meta.artist );
 				$title.html( track.title );
+				player.$media.attr( 'title', track.title );
 			});
 		}
 	});
