@@ -138,7 +138,8 @@
 		},
 
 		cueSetCurrentTrack: function( track, play ) {
-			var player = this,
+			var title,
+				player = this,
 				selectors = player.options.cueSelectors;
 
 			if ( 'number' === typeof track ) {
@@ -159,6 +160,9 @@
 				player.setSrc( track.src );
 				player.load();
 			}
+
+			title = track.title || '';
+			player.$media.attr( 'title', title );
 
 			player.$node.trigger( 'setTrack.cue', [ track, player ]);
 

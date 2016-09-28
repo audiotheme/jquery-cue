@@ -15,7 +15,6 @@
 
 				$artist.html( track.meta.artist );
 				$title.html( track.title );
-				player.$media.attr( 'title', track.title );
 			});
 		}
 	});
