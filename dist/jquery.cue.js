@@ -1,5 +1,5 @@
 /*!
- * jquery.cue.js - 1.1.7
+ * jquery.cue.js - 1.1.8
  * Playlist and other functionality for MediaElement.js
  * https://audiotheme.com/
  *
@@ -207,7 +207,7 @@ window.cue = window.cue || {};
 
 			player.$node.on( 'setTrack.cue', function( e, track, player ) {
 				track.meta = track.meta || {};
-				track.title = track.title || {};
+				track.title = track.title || '';
 
 				$artist.html( track.meta.artist );
 				$title.html( track.title );
@@ -594,7 +594,8 @@ window.cue = window.cue || {};
 		},
 
 		cueSetCurrentTrack: function( track, play ) {
-			var player = this,
+			var title,
+				player = this,
 				selectors = player.options.cueSelectors;
 
 			if ( 'number' === typeof track ) {
@@ -615,6 +616,9 @@ window.cue = window.cue || {};
 				player.setSrc( track.src );
 				player.load();
 			}
+
+			title = track.title || '';
+			player.$media.attr( 'title', title );
 
 			player.$node.trigger( 'setTrack.cue', [ track, player ]);
 
