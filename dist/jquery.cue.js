@@ -1,5 +1,5 @@
 /*!
- * jquery.cue.js - 1.1.8
+ * jquery.cue.js - 1.1.9
  * Playlist and other functionality for MediaElement.js
  * https://audiotheme.com/
  *
@@ -611,7 +611,7 @@ window.cue = window.cue || {};
 				player.controls.find( '.mejs-duration' ).text( track.length );
 			}
 
-			if ( track.src && track.src !== player.media.src ) {
+			if ( track.src && track.src !== decodeURI( player.media.src ) ) {
 				player.pause();
 				player.setSrc( track.src );
 				player.load();
