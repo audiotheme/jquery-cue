@@ -155,7 +155,7 @@
 				player.controls.find( '.mejs-duration' ).text( track.length );
 			}
 
-			if ( track.src && track.src !== player.media.src ) {
+			if ( track.src && track.src !== decodeURI( player.media.src ) ) {
 				player.pause();
 				player.setSrc( track.src );
 				player.load();
