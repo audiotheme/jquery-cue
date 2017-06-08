@@ -10,7 +10,7 @@
 	$.extend( MediaElementPlayer.prototype, {
 		buildcueplaylisttoggle: function( player, controls, layers, media ) {
 			var selectors = player.options.cueSelectors,
-				$playlist = player.container.closest( selectors.playlist ),
+				$playlist = $( player.container ).closest( selectors.playlist ),
 				$tracklist = $playlist.find( selectors.tracklist ),
 				isTracklistVisible = $tracklist.is( ':visible' );
 

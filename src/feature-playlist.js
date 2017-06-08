@@ -29,8 +29,8 @@
 		 */
 		buildcueplaylist: function( player, controls, layers, media ) {
 			var selectors = player.options.cueSelectors,
-				$media = player.$media,
-				$playlist = player.container.closest( selectors.playlist );
+				$media = $( media ),
+				$playlist = $( player.container ).closest( selectors.playlist );
 
 			player.cueSetupTracklist();
 
@@ -102,7 +102,7 @@
 
 				// Give other 'end' events a chance to grab the current track.
 				setTimeout(function() {
-					player.$node.trigger( 'nextTrack.cue', player );
+					$( player.node ).trigger( 'nextTrack.cue', player );
 					player.cuePlayNextTrack();
 				}, 250 );
 			});
@@ -147,12 +147,12 @@
 				track = player.cueGetCurrentTrack();
 			}
 
-			player.container.closest( selectors.playlist )
+			$( player.container ).closest( selectors.playlist )
 				.find( selectors.track ).removeClass( 'is-current' )
 				.eq( player.cueCurrentTrack ).addClass( 'is-current' );
 
 			if ( track.length ) {
-				player.controls.find( '.mejs-duration' ).text( track.length );
+				$( player.controls ).find( '.mejs-duration' ).text( track.length );
 			}
 
 			if ( track.src && track.src !== decodeURI( player.media.src ) ) {
@@ -162,9 +162,9 @@
 			}
 
 			title = track.title || '';
-			player.$media.attr( 'title', title );
+			$( player.media ).attr( 'title', title );
 
-			player.$node.trigger( 'setTrack.cue', [ track, player ]);
+			$( player.node ).trigger( 'setTrack.cue', [ track, player ]);
 
 			if ( track.src && ( 'undefined' === typeof play || play ) ) {
 				player.cuePlay();
@@ -174,7 +174,7 @@
 		cueSetupTracklist: function() {
 			var player = this,
 				selectors = player.options.cueSelectors,
-				$playlist = player.container.closest( selectors.playlist );
+				$playlist = $( player.container ).closest( selectors.playlist );
 
 			player.$cueTracks = $playlist.find( selectors.track );
 
@@ -213,8 +213,9 @@
 		},
 
 		updateTimeCodes: function() {
-			var player = this.player,
-				duration, durationTimeCode, currentTimeCode;
+			var duration, durationTimeCode, currentTimeCode,
+				player = this.player,
+				utils = mejs.Utility || mejs.Utils;
 
 			if ( null === player ) {
 				return;
@@ -222,8 +223,8 @@
 
 			duration = player.options.duration > 0 ? player.options.duration : player.media.duration;
 			if ( ! isNaN( duration ) ) {
-				durationTimeCode = mejs.Utility.secondsToTimeCode( duration, player.options.alwaysShowHours, player.options.showTimecodeFrameCount, player.options.framesPerSecond || 25 );
-				currentTimeCode = mejs.Utility.secondsToTimeCode( player.media.currentTime, player.options.alwaysShowHours || player.media.duration > 3600, player.options.showTimecodeFrameCount, player.options.framesPerSecond || 25 );
+				durationTimeCode = utils.secondsToTimeCode( duration, player.options.alwaysShowHours, player.options.showTimecodeFrameCount, player.options.framesPerSecond || 25 );
+				currentTimeCode = utils.secondsToTimeCode( player.media.currentTime, player.options.alwaysShowHours || player.media.duration > 3600, player.options.showTimecodeFrameCount, player.options.framesPerSecond || 25 );
 
 				this.$duration.text( durationTimeCode );
 				this.$playBar.width( player.media.currentTime / duration * 100 + '%' );

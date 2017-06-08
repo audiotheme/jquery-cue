@@ -3,13 +3,14 @@
 
 	$.extend( MediaElementPlayer.prototype, {
 		buildcuecurrentdetails: function( player, controls, layers ) {
-			var $artist, $title;
+			var $artist, $title,
+				$layers = $( layers );
 
-			layers.append( '<div class="mejs-track-details"><span class="mejs-track-artist"></span><span class="mejs-track-title"></span></div>' );
-			$artist = layers.find( '.mejs-track-artist' );
-			$title = layers.find( '.mejs-track-title' );
+			$layers.append( '<div class="mejs-track-details"><span class="mejs-track-artist"></span><span class="mejs-track-title"></span></div>' );
+			$artist = $layers.find( '.mejs-track-artist' );
+			$title = $layers.find( '.mejs-track-title' );
 
-			player.$node.on( 'setTrack.cue', function( e, track, player ) {
+			$( player.node ).on( 'setTrack.cue', function( e, track, player ) {
 				track.meta = track.meta || {};
 				track.title = track.title || '';
 

@@ -17,7 +17,7 @@
 						src: media.src
 					});
 
-					player.$node.trigger( 'skipBack.cue', [ state, track ] );
+					$( player.node ).trigger( 'skipBack.cue', [ state, track ] );
 					player.cuePlayPreviousTrack();
 				});
 		},
@@ -27,7 +27,7 @@
 			var player = this,
 				index = player.cueCurrentTrack - 1 < 0 ? player.options.cuePlaylistTracks.length - 1 : player.cueCurrentTrack - 1;
 
-			player.$node.trigger( 'previousTrack.cue', player );
+			$( player.node ).trigger( 'previousTrack.cue', player );
 			player.cueSetCurrentTrack( index );
 		}
 	});

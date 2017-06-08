@@ -3,9 +3,9 @@
 
 	$.extend( MediaElementPlayer.prototype, {
 		buildcueartwork: function( player, controls, layers ) {
-			var $artwork = layers.append( '<span class="mejs-track-artwork"><img src=""></span>' ).find( '.mejs-track-artwork' );
+			var $artwork = $( layers ).append( '<span class="mejs-track-artwork"><img src=""></span>' ).find( '.mejs-track-artwork' );
 
-			player.$node.on( 'setTrack.cue', function( e, track, player ) {
+			$( player.node ).on( 'setTrack.cue', function( e, track, player ) {
 				var hasArtwork;
 
 				track.thumb = track.thumb || {};

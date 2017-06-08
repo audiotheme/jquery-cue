@@ -4,11 +4,12 @@
 	// Add this feature after all controls have been built.
 	$.extend( MediaElementPlayer.prototype, {
 		buildcueicons: function( player, controls ) {
-			var $icons = $( player.options.cueSelectors.container ).find( '[data-cue-control]' );
+			var $icons = $( player.options.cueSelectors.container ).find( '[data-cue-control]' ),
+				$controls = $( controls );
 
 			$icons.each(function() {
 				var $icon = $( this );
-				$icon.appendTo( controls.find( $icon.data( 'cueControl' ) ) );
+				$icon.appendTo( $controls.find( $icon.data( 'cueControl' ) ) );
 			});
 		}
 	});

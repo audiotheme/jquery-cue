@@ -125,7 +125,7 @@ window.cue = window.cue || {};
 		],
 		success: function( media, domObject, player ) {
 			var $media = $( media ),
-				$container = player.container.closest( player.options.cueSelectors.playlist );
+				$container = $( player.container ).closest( player.options.cueSelectors.playlist );
 
 			if ( '' !== player.options.cueSkin ) {
 				player.changeSkin( player.options.cueSkin );
@@ -134,7 +134,7 @@ window.cue = window.cue || {};
 			// Make the time rail responsive.
 			if ( player.options.cueResponsiveProgress ) {
 				$window.on( 'resize.cue', function() {
-					player.controls.find( '.mejs-time-rail' ).width( '100%' );
+					$( player.controls ).find( '.mejs-time-rail' ).width( '100%' );
 					//t.setControlsSize();
 				}).trigger( 'resize.cue' );
 			}
@@ -142,7 +142,7 @@ window.cue = window.cue || {};
 			// Hide the duration and time separator if the duration isn't available.
 			$media.on( 'loadedmetadata', function( e ) {
 				if ( isNaN( e.target.duration ) || ! isFinite( e.target.duration ) ) {
-					player.container.find( '.mejs-time-separator, .mejs-duration' ).hide();
+					$( player.container ).find( '.mejs-time-separator, .mejs-duration' ).hide();
 				}
 			} );
 

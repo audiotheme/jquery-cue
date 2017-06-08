@@ -2,12 +2,12 @@
 	'use strict';
 
 	var historySuccess, originalSuccess,
-		mePlayerInit = mejs.MediaElementPlayer.prototype.init;
+		mePlayerInit = MediaElementPlayer.prototype.init;
 
 	/**
 	 * Proxy the MediaElementPlayer init method to proxy the success callback.
 	 */
-	mejs.MediaElementPlayer.prototype.init = function() {
+	MediaElementPlayer.prototype.init = function() {
 		// Set up if the cuehistory feature is declared.
 		if ( -1 !== $.inArray( 'cuehistory', this.options.features ) ) {
 			originalSuccess = this.options.success;
@@ -23,7 +23,7 @@
 		var isPlaying, status,
 			history = new History( player.options.cueId || '', player.options.cueSignature || '' ),
 			autoplay = ( 'autoplay' === media.getAttribute( 'autoplay' ) ),
-			mf = mejs.MediaFeatures;
+			mf = mejs.MediaFeatures || mejs.Features;
 
 		if ( history && undefined !== history.get( 'volume' ) ) {
 			media.setVolume( history.get( 'volume' ) );
@@ -60,7 +60,7 @@
 		buildcuehistory: function( player, controls, layers, media ) {
 			var currentTime, history,
 				isLoaded = false,
-				mf = mejs.MediaFeatures,
+				mf = mejs.MediaFeatures || mejs.Features,
 				isSafari = /Safari/.test( navigator.userAgent ) && /Apple Computer/.test( navigator.vendor );
 
 			history = player.cueHistory = new History( player.options.cueId, player.options.cueSignature );
