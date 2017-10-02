@@ -1,5 +1,5 @@
 /*!
- * jquery.cue.js - 1.1.9
+ * jquery.cue.js - 1.2.0
  * Playlist and other functionality for MediaElement.js
  * https://audiotheme.com/
  *
@@ -12,7 +12,8 @@ window.cue = window.cue || {};
 	'use strict';
 
 	var $window = $( window ),
-		cue = window.cue;
+		cue = window.cue,
+		mePlayerSetControlsSize = MediaElementPlayer.prototype.setControlsSize;
 
 	cue.l10n = $.extend({
 		nextTrack: 'Next Track',
@@ -22,21 +23,33 @@ window.cue = window.cue || {};
 
 	cue.settings = cue.settings || {};
 
-	// Add mime-type aliases to MediaElement plugin support.
-	mejs.plugins.silverlight[ 0 ].types.push( 'audio/x-ms-wma' );
-
 	// Detection for browser SVG capability.
 	$( 'html' ).addClass(function() {
 		return document.implementation.hasFeature( 'http://www.w3.org/TR/SVG11/feature#Image', '1.1' ) ? 'svg' : 'no-svg';
 	});
 
 	$.extend( mejs.MepDefaults, {
+		cueDisableControlsSizing: false,
 		cueResponsiveProgress: false, // Set the progress bar to 100% on window resize.
 		cueSelectors: {
 			container: '.cue-playlist-container'
 		},
 		cueSkin: ''
 	});
+
+	/**
+	 * Proxy the method for setting the controls size.
+	 *
+	 * This method sets a min-width inline style on the container element based
+	 * on the calculated width of the player controls, which doesn't end up
+	 * working very well for custom themes. Using CSS directly is preferred and
+	 * should be better for performance.
+	 */
+	MediaElementPlayer.prototype.setControlsSize = function() {
+		if ( true !== this.options.cueDisableControlsSizing ) {
+			mePlayerSetControlsSize.call( this );
+		}
+	};
 
 	/**
 	 * jQuery plugin to initialize playlists.
@@ -118,7 +131,7 @@ window.cue = window.cue || {};
 	$.fn.cuePlaylist.defaults = {
 		autosizeProgress: false,
 		autoRewind: false,
-		cuePlaylistLoop: true,
+		cuePlaylistLoop: false,
 		cuePlaylistTracks: [],
 		cueSkin: 'cue-skin-default',
 		defaultAudioHeight: 0,
@@ -136,7 +149,7 @@ window.cue = window.cue || {};
 		],
 		success: function( media, domObject, player ) {
 			var $media = $( media ),
-				$container = player.container.closest( player.options.cueSelectors.playlist );
+				$container = $( player.container ).closest( player.options.cueSelectors.playlist );
 
 			if ( '' !== player.options.cueSkin ) {
 				player.changeSkin( player.options.cueSkin );
@@ -145,7 +158,7 @@ window.cue = window.cue || {};
 			// Make the time rail responsive.
 			if ( player.options.cueResponsiveProgress ) {
 				$window.on( 'resize.cue', function() {
-					player.controls.find( '.mejs-time-rail' ).width( '100%' );
+					$( player.controls ).find( '.mejs-time-rail' ).width( '100%' );
 					//t.setControlsSize();
 				}).trigger( 'resize.cue' );
 			}
@@ -153,7 +166,7 @@ window.cue = window.cue || {};
 			// Hide the duration and time separator if the duration isn't available.
 			$media.on( 'loadedmetadata', function( e ) {
 				if ( isNaN( e.target.duration ) || ! isFinite( e.target.duration ) ) {
-					player.container.find( '.mejs-time-separator, .mejs-duration' ).hide();
+					$( player.container ).find( '.mejs-time-separator, .mejs-duration' ).hide();
 				}
 			} );
 
@@ -177,9 +190,9 @@ window.cue = window.cue || {};
 
 	$.extend( MediaElementPlayer.prototype, {
 		buildcueartwork: function( player, controls, layers ) {
-			var $artwork = layers.append( '<span class="mejs-track-artwork"><img src=""></span>' ).find( '.mejs-track-artwork' );
+			var $artwork = $( layers ).append( '<span class="mejs-track-artwork"><img src=""></span>' ).find( '.mejs-track-artwork' );
 
-			player.$node.on( 'setTrack.cue', function( e, track, player ) {
+			$( player.node ).on( 'setTrack.cue', function( e, track, player ) {
 				var hasArtwork;
 
 				track.thumb = track.thumb || {};
@@ -199,13 +212,14 @@ window.cue = window.cue || {};
 
 	$.extend( MediaElementPlayer.prototype, {
 		buildcuecurrentdetails: function( player, controls, layers ) {
-			var $artist, $title;
+			var $artist, $title,
+				$layers = $( layers );
 
-			layers.append( '<div class="mejs-track-details"><span class="mejs-track-artist"></span><span class="mejs-track-title"></span></div>' );
-			$artist = layers.find( '.mejs-track-artist' );
-			$title = layers.find( '.mejs-track-title' );
+			$layers.append( '<div class="mejs-track-details"><span class="mejs-track-artist"></span><span class="mejs-track-title"></span></div>' );
+			$artist = $layers.find( '.mejs-track-artist' );
+			$title = $layers.find( '.mejs-track-title' );
 
-			player.$node.on( 'setTrack.cue', function( e, track, player ) {
+			$( player.node ).on( 'setTrack.cue', function( e, track, player ) {
 				track.meta = track.meta || {};
 				track.title = track.title || '';
 
@@ -221,12 +235,12 @@ window.cue = window.cue || {};
 	'use strict';
 
 	var historySuccess, originalSuccess,
-		mePlayerInit = mejs.MediaElementPlayer.prototype.init;
+		mePlayerInit = MediaElementPlayer.prototype.init;
 
 	/**
 	 * Proxy the MediaElementPlayer init method to proxy the success callback.
 	 */
-	mejs.MediaElementPlayer.prototype.init = function() {
+	MediaElementPlayer.prototype.init = function() {
 		// Set up if the cuehistory feature is declared.
 		if ( -1 !== $.inArray( 'cuehistory', this.options.features ) ) {
 			originalSuccess = this.options.success;
@@ -242,7 +256,7 @@ window.cue = window.cue || {};
 		var isPlaying, status,
 			history = new History( player.options.cueId || '', player.options.cueSignature || '' ),
 			autoplay = ( 'autoplay' === media.getAttribute( 'autoplay' ) ),
-			mf = mejs.MediaFeatures;
+			mf = mejs.MediaFeatures || mejs.Features;
 
 		if ( history && undefined !== history.get( 'volume' ) ) {
 			media.setVolume( history.get( 'volume' ) );
@@ -279,7 +293,7 @@ window.cue = window.cue || {};
 		buildcuehistory: function( player, controls, layers, media ) {
 			var currentTime, history,
 				isLoaded = false,
-				mf = mejs.MediaFeatures,
+				mf = mejs.MediaFeatures || mejs.Features,
 				isSafari = /Safari/.test( navigator.userAgent ) && /Apple Computer/.test( navigator.vendor );
 
 			history = player.cueHistory = new History( player.options.cueId, player.options.cueSignature );
@@ -407,11 +421,12 @@ window.cue = window.cue || {};
 	// Add this feature after all controls have been built.
 	$.extend( MediaElementPlayer.prototype, {
 		buildcueicons: function( player, controls ) {
-			var $icons = $( player.options.cueSelectors.container ).find( '[data-cue-control]' );
+			var $icons = $( player.options.cueSelectors.container ).find( '[data-cue-control]' ),
+				$controls = $( controls );
 
 			$icons.each(function() {
 				var $icon = $( this );
-				$icon.appendTo( controls.find( $icon.data( 'cueControl' ) ) );
+				$icon.appendTo( $controls.find( $icon.data( 'cueControl' ) ) );
 			});
 		}
 	});
@@ -437,7 +452,7 @@ window.cue = window.cue || {};
 						src: media.src
 					});
 
-					player.$node.trigger( 'skipNext.cue', [ state, track ] );
+					$( player.node ).trigger( 'skipNext.cue', [ state, track ] );
 					player.cuePlayNextTrack();
 				});
 		},
@@ -447,7 +462,7 @@ window.cue = window.cue || {};
 			var player = this,
 				index = player.cueCurrentTrack + 1 >= player.options.cuePlaylistTracks.length ? 0 : player.cueCurrentTrack + 1;
 
-			player.$node.trigger( 'nextTrack.cue', player );
+			$( player.node ).trigger( 'nextTrack.cue', player );
 			player.cueSetCurrentTrack( index );
 		}
 	});
@@ -485,8 +500,8 @@ window.cue = window.cue || {};
 		 */
 		buildcueplaylist: function( player, controls, layers, media ) {
 			var selectors = player.options.cueSelectors,
-				$media = player.$media,
-				$playlist = player.container.closest( selectors.playlist );
+				$media = $( media ),
+				$playlist = $( player.container ).closest( selectors.playlist );
 
 			player.cueSetupTracklist();
 
@@ -558,7 +573,7 @@ window.cue = window.cue || {};
 
 				// Give other 'end' events a chance to grab the current track.
 				setTimeout(function() {
-					player.$node.trigger( 'nextTrack.cue', player );
+					$( player.node ).trigger( 'nextTrack.cue', player );
 					player.cuePlayNextTrack();
 				}, 250 );
 			});
@@ -603,12 +618,12 @@ window.cue = window.cue || {};
 				track = player.cueGetCurrentTrack();
 			}
 
-			player.container.closest( selectors.playlist )
+			$( player.container ).closest( selectors.playlist )
 				.find( selectors.track ).removeClass( 'is-current' )
 				.eq( player.cueCurrentTrack ).addClass( 'is-current' );
 
 			if ( track.length ) {
-				player.controls.find( '.mejs-duration' ).text( track.length );
+				$( player.controls ).find( '.mejs-duration' ).text( track.length );
 			}
 
 			if ( track.src && track.src !== decodeURI( player.media.src ) ) {
@@ -618,9 +633,9 @@ window.cue = window.cue || {};
 			}
 
 			title = track.title || '';
-			player.$media.attr( 'title', title );
+			$( player.media ).attr( 'title', title );
 
-			player.$node.trigger( 'setTrack.cue', [ track, player ]);
+			$( player.node ).trigger( 'setTrack.cue', [ track, player ]);
 
 			if ( track.src && ( 'undefined' === typeof play || play ) ) {
 				player.cuePlay();
@@ -630,7 +645,7 @@ window.cue = window.cue || {};
 		cueSetupTracklist: function() {
 			var player = this,
 				selectors = player.options.cueSelectors,
-				$playlist = player.container.closest( selectors.playlist );
+				$playlist = $( player.container ).closest( selectors.playlist );
 
 			player.$cueTracks = $playlist.find( selectors.track );
 
@@ -669,8 +684,9 @@ window.cue = window.cue || {};
 		},
 
 		updateTimeCodes: function() {
-			var player = this.player,
-				duration, durationTimeCode, currentTimeCode;
+			var duration, durationTimeCode, currentTimeCode,
+				player = this.player,
+				utils = mejs.Utility || mejs.Utils;
 
 			if ( null === player ) {
 				return;
@@ -678,8 +694,8 @@ window.cue = window.cue || {};
 
 			duration = player.options.duration > 0 ? player.options.duration : player.media.duration;
 			if ( ! isNaN( duration ) ) {
-				durationTimeCode = mejs.Utility.secondsToTimeCode( duration, player.options.alwaysShowHours, player.options.showTimecodeFrameCount, player.options.framesPerSecond || 25 );
-				currentTimeCode = mejs.Utility.secondsToTimeCode( player.media.currentTime, player.options.alwaysShowHours || player.media.duration > 3600, player.options.showTimecodeFrameCount, player.options.framesPerSecond || 25 );
+				durationTimeCode = utils.secondsToTimeCode( duration, player.options.alwaysShowHours, player.options.showTimecodeFrameCount, player.options.framesPerSecond || 25 );
+				currentTimeCode = utils.secondsToTimeCode( player.media.currentTime, player.options.alwaysShowHours || player.media.duration > 3600, player.options.showTimecodeFrameCount, player.options.framesPerSecond || 25 );
 
 				this.$duration.text( durationTimeCode );
 				this.$playBar.width( player.media.currentTime / duration * 100 + '%' );
@@ -704,7 +720,7 @@ window.cue = window.cue || {};
 	$.extend( MediaElementPlayer.prototype, {
 		buildcueplaylisttoggle: function( player, controls, layers, media ) {
 			var selectors = player.options.cueSelectors,
-				$playlist = player.container.closest( selectors.playlist ),
+				$playlist = $( player.container ).closest( selectors.playlist ),
 				$tracklist = $playlist.find( selectors.tracklist ),
 				isTracklistVisible = $tracklist.is( ':visible' );
 
@@ -754,7 +770,7 @@ window.cue = window.cue || {};
 						src: media.src
 					});
 
-					player.$node.trigger( 'skipBack.cue', [ state, track ] );
+					$( player.node ).trigger( 'skipBack.cue', [ state, track ] );
 					player.cuePlayPreviousTrack();
 				});
 		},
@@ -764,7 +780,7 @@ window.cue = window.cue || {};
 			var player = this,
 				index = player.cueCurrentTrack - 1 < 0 ? player.options.cuePlaylistTracks.length - 1 : player.cueCurrentTrack - 1;
 
-			player.$node.trigger( 'previousTrack.cue', player );
+			$( player.node ).trigger( 'previousTrack.cue', player );
 			player.cueSetCurrentTrack( index );
 		}
 	});
