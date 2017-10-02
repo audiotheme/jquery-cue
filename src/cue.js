@@ -4,7 +4,8 @@ window.cue = window.cue || {};
 	'use strict';
 
 	var $window = $( window ),
-		cue = window.cue;
+		cue = window.cue,
+		mePlayerSetControlsSize = MediaElementPlayer.prototype.setControlsSize;
 
 	cue.l10n = $.extend({
 		nextTrack: 'Next Track',
@@ -20,12 +21,27 @@ window.cue = window.cue || {};
 	});
 
 	$.extend( mejs.MepDefaults, {
+		cueDisableControlsSizing: false,
 		cueResponsiveProgress: false, // Set the progress bar to 100% on window resize.
 		cueSelectors: {
 			container: '.cue-playlist-container'
 		},
 		cueSkin: ''
 	});
+
+	/**
+	 * Proxy the method for setting the controls size.
+	 *
+	 * This method sets a min-width inline style on the container element based
+	 * on the calculated width of the player controls, which doesn't end up
+	 * working very well for custom themes. Using CSS directly is preferred and
+	 * should be better for performance.
+	 */
+	MediaElementPlayer.prototype.setControlsSize = function() {
+		if ( true !== this.options.cueDisableControlsSizing ) {
+			mePlayerSetControlsSize.call( this );
+		}
+	};
 
 	/**
 	 * jQuery plugin to initialize playlists.
