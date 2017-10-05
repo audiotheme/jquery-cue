@@ -1,5 +1,5 @@
 /*!
- * jquery.cue.js - 1.2.0
+ * jquery.cue.js - 1.2.1
  * Playlist and other functionality for MediaElement.js
  * https://audiotheme.com/
  *
@@ -164,7 +164,7 @@ window.cue = window.cue || {};
 			}
 
 			// Hide the duration and time separator if the duration isn't available.
-			$media.on( 'loadedmetadata', function( e ) {
+			$( player.node ).on( 'loadedmetadata', function( e ) {
 				if ( isNaN( e.target.duration ) || ! isFinite( e.target.duration ) ) {
 					$( player.container ).find( '.mejs-time-separator, .mejs-duration' ).hide();
 				}
@@ -242,7 +242,7 @@ window.cue = window.cue || {};
 	 */
 	MediaElementPlayer.prototype.init = function() {
 		// Set up if the cuehistory feature is declared.
-		if ( -1 !== $.inArray( 'cuehistory', this.options.features ) ) {
+		if ( -1 !== this.options.features.indexOf( 'cuehistory' ) ) {
 			originalSuccess = this.options.success;
 			this.options.success = historySuccess;
 		}
