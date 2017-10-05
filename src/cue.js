@@ -156,7 +156,7 @@ window.cue = window.cue || {};
 			}
 
 			// Hide the duration and time separator if the duration isn't available.
-			$media.on( 'loadedmetadata', function( e ) {
+			$( player.node ).on( 'loadedmetadata', function( e ) {
 				if ( isNaN( e.target.duration ) || ! isFinite( e.target.duration ) ) {
 					$( player.container ).find( '.mejs-time-separator, .mejs-duration' ).hide();
 				}
