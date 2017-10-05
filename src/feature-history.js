@@ -9,7 +9,7 @@
 	 */
 	MediaElementPlayer.prototype.init = function() {
 		// Set up if the cuehistory feature is declared.
-		if ( -1 !== $.inArray( 'cuehistory', this.options.features ) ) {
+		if ( -1 !== this.options.features.indexOf( 'cuehistory' ) ) {
 			originalSuccess = this.options.success;
 			this.options.success = historySuccess;
 		}
