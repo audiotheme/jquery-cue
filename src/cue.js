@@ -172,7 +172,8 @@ window.cue = window.cue || {};
 
 			$container.trigger( 'success.cue', [ media, domObject, player ]);
 		},
-		timeAndDurationSeparator: '<span class="mejs-time-separator"> / </span>'
+		timeAndDurationSeparator: '<span class="mejs-time-separator"> / </span>',
+		timeFormat: 'm:ss'
 	};
 
 })( this, jQuery );
