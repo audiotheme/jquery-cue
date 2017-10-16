@@ -74,7 +74,7 @@ window.cue = window.cue || {};
 				data, i, trackCount;
 
 			if ( ! $data.length ) {
-				$data = $playlist.closest( settings.cueSelectors.container ).find( '.cue-playlist-data, script' );
+				$data = $playlist.closest( settings.cueSelectors.container ).find( '.cue-playlist-data' );
 			}
 
 			if ( $data.length ) {
