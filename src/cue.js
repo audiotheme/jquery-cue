@@ -70,7 +70,7 @@ window.cue = window.cue || {};
 		return this.each(function() {
 			var $playlist = $( this ),
 				$media = $playlist.find( '.cue-audio, audio' ).first(),
-				$data = $playlist.find( '.cue-playlist-data, script' ),
+				$data = $playlist.find( '.cue-playlist-data' ),
 				data, i, trackCount;
 
 			if ( ! $data.length ) {
