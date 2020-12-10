@@ -78,7 +78,7 @@ window.cue = window.cue || {};
 			}
 
 			if ( $data.length ) {
-				data = $.parseJSON( $data.first().html() );
+				data = JSON.parse( $data.first().html() );
 
 				// Add the signature.
 				if ( 'signature' in data ) {

@@ -29,7 +29,7 @@
 				$button.toggleClass( 'is-open', ! isTracklistVisible ).toggleClass( 'is-closed', isTracklistVisible );
 				$playlist.toggleClass( 'is-tracklist-open', ! isTracklistVisible ).toggleClass( 'is-tracklist-closed', isTracklistVisible );
 
-				if ( $.isFunction( player.options.cuePlaylistToggle ) ) {
+				if ( 'function' === typeof player.options.cuePlaylistToggle ) {
 					player.options.cuePlaylistToggle( $tracklist, player );
 				}
 			})
