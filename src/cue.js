@@ -58,7 +58,6 @@ window.cue = window.cue || {};
 
 		// Add selector settings.
 		settings.cueSelectors = $.extend({}, mejs.MepDefaults.cueSelectors, {
-			playlist: this.selector,
 			track: '.cue-track'
 		});
 
