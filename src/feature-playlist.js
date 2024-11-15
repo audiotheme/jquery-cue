@@ -45,7 +45,6 @@
 					width = $bar.outerWidth(),
 					percentage = pos / width;
 
-				percentage = percentage < 0.2 ? 0 : percentage;
 				media.setCurrentTime( percentage * duration );
 			});
 
